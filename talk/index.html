@@ -115,11 +115,6 @@ h1 { margin: -6px 0 0; font-size: clamp(1.5rem, 3.4vw, 2rem); font-weight: 600; 
     <p class="lead">直接開口跟他說話就好。他說完，會再聽你說。</p>
     <div class="chips" id="chips"></div>
     <button type="button" class="more" id="moreChips" hidden>更多話題</button>
-    <form class="say" id="sayForm">
-      <input id="sayInput" maxlength="60" placeholder="打字，或按麥克風用說的" aria-label="想跟他說的話" autocomplete="off">
-      <button type="button" class="mic" id="micBtn" aria-label="用說的"><svg viewBox="0 0 24 24"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></svg></button>
-      <button class="btn" type="submit">說</button>
-    </form>
     <div class="status"><p class="you" id="you" aria-live="polite"></p><button class="btn ghost" type="button" id="vStop" hidden>停止</button></div>
     <p class="note">此為依照片與家人回憶製作的 AI 數字人，回答是家人事先寫好的話，聲音為合成語音。</p>
   </div>
@@ -138,7 +133,7 @@ h1 { margin: -6px 0 0; font-size: clamp(1.5rem, 3.4vw, 2rem); font-weight: 600; 
   const $ = id => document.getElementById(id);
   const stage = $('stage'), idle = $('vIdle'), talk = $('vTalk'), bow = $('vBow'), audio = $('vAudio'), cap = $('cap');
   const side = $('side'), stopBtn = $('vStop'), fsBtn = $('fsBtn');
-  const chips = $('chips'), moreBtn = $('moreChips'), sayForm = $('sayForm'), sayInput = $('sayInput'), micBtn = $('micBtn'), you = $('you');
+  const chips = $('chips'), moreBtn = $('moreChips'), you = $('you');
   let qa = [], caps = [], state = 'idle', withBow = false, fb = 0;
 
   // Settings, voices and answers come from config.json, written by the admin tool on publish.
@@ -232,47 +227,33 @@ h1 { margin: -6px 0 0; font-size: clamp(1.5rem, 3.4vw, 2rem); font-weight: 600; 
     if (list.length > shown) moreBtn.hidden = false;
   }
   moreBtn.addEventListener('click', () => { chips.querySelectorAll('button').forEach(b => { b.hidden = false; }); moreBtn.hidden = true; });
-  sayForm.addEventListener('submit', e => {
-    e.preventDefault();
-    const text = sayInput.value.trim();
-    if (!text || !qa.length) return;
-    sayInput.value = '';
-    answer(text, match(text));
-  });
 
-  // Hands-free: listen while he is quiet, answer, then listen again. The mic button pauses or resumes it.
-  // Without speech recognition (or mic refused) the page falls back to typing and topic chips.
+  // Voice only: he listens whenever he is quiet (and someone is there), answers, then listens again.
+  // Without speech recognition or with the mic refused, the topic chips still work.
   const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
-  let rec = null, handsFree = false, keyboardMic = !SR;
-  const useKeyboardMic = msg => { handsFree = false; micBtn.classList.remove('on', 'rec'); you.textContent = msg || '請打字，或按手機鍵盤上的麥克風 🎤 說話，說完按「說」。'; };
+  let rec = null, handsFree = false, noMic = !SR;
   function listen() {
-    if (!handsFree || rec || state !== 'idle' || keyboardMic || !$('vPanel').hidden || (watching && !present)) return;
+    if (!handsFree || rec || state !== 'idle' || noMic || !$('vPanel').hidden || (watching && !present)) return;
     rec = new SR(); rec.lang = 'zh-TW'; rec.interimResults = true;
     let heard = '';
     rec.onresult = e => { heard = Array.from(e.results, r => r[0].transcript).join(''); you.textContent = '你說：' + heard; };
     rec.onerror = e => {
-      if (e.error === 'not-allowed' || e.error === 'service-not-allowed' || e.error === 'audio-capture') { keyboardMic = true; useKeyboardMic('麥克風沒有開啟權限。可以在瀏覽器設定允許麥克風，或直接打字。'); }
+      if (e.error === 'not-allowed' || e.error === 'service-not-allowed' || e.error === 'audio-capture') { noMic = true; you.textContent = '麥克風沒有開啟權限，請在瀏覽器設定允許使用麥克風。'; }
     };
     rec.onend = () => {
-      micBtn.classList.remove('rec'); rec = null;
+      rec = null;
       const text = heard.trim();
       if (text && qa.length) answer(text, match(text));
       else if (handsFree) setTimeout(listen, 300);   // silence: keep listening
     };
-    micBtn.classList.add('rec'); you.textContent = '我在聽，你說…';
-    try { rec.start(); } catch { rec = null; micBtn.classList.remove('rec'); }
+    you.textContent = '我在聽，你說…';
+    try { rec.start(); } catch { rec = null; }
   }
-  micBtn.addEventListener('click', () => {
-    if (keyboardMic) { useKeyboardMic(); sayInput.focus(); return; }
-    handsFree = !handsFree; micBtn.classList.toggle('on', handsFree);
-    if (handsFree) listen();
-    else { if (rec) rec.abort(); you.textContent = '已暫停聆聽，按麥克風繼續。'; }
-  });
 
   // Start: greet, then listen. Browsers that block sound until a tap get one tap on the veil.
   const veil = $('veil');
   const greet = () => {
-    handsFree = !keyboardMic && site.handsFree !== false; micBtn.classList.toggle('on', handsFree);
+    handsFree = !noMic;
     if (site.presence.enabled) { startWatching(); return; }
     const hi = site.greetingId && qa.find(x => x.id === site.greetingId);
     if (hi) { answer('（開始）', hi); you.textContent = ''; } else if (handsFree) listen();
