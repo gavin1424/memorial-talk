@@ -78,6 +78,17 @@ h1 { margin: -6px 0 0; font-size: clamp(1.5rem, 3.4vw, 2rem); font-weight: 600; 
 .veil span { font-size: .95rem; color: var(--gold-soft); letter-spacing: .15em; }
 .veil i { width: 72px; height: 72px; border-radius: 50%; border: 1px solid var(--gold-soft); display: grid; place-items: center; animation: pulse 1.8s infinite; }
 .veil svg { width: 30px; height: 30px; fill: none; stroke: var(--gold-soft); stroke-width: 1.6; }
+.vbtn { right: auto; left: 12px; }
+/* Voice picker: a quiet sheet listing the voices the family opened up */
+.vpanel { position: fixed; inset: 0; z-index: 15; display: grid; place-items: center; padding: 16px; background: rgba(20,13,8,.6); }
+.vpanel > div { width: min(560px, 100%); max-height: calc(100dvh - 32px); overflow-y: auto; background: var(--bg-2); border: 1px solid rgba(217,192,142,.35); border-radius: 14px; padding: 18px 18px 14px; display: grid; gap: 10px; }
+.vpanel h2 { margin: 0; font-size: 1.15rem; font-weight: 600; letter-spacing: .12em; }
+.vpanel h3 { margin: 8px 0 0; font-size: .85rem; letter-spacing: .2em; color: var(--gold); font-weight: 400; }
+.vopt { display: grid; grid-template-columns: minmax(0, 1fr) auto auto; gap: 8px; align-items: center; padding: 8px 10px; border-radius: 10px; border: 1px solid rgba(217,192,142,.2); }
+.vopt.cur { border-color: var(--gold-soft); background: rgba(255,243,220,.07); }
+.vopt b { font-weight: 600; letter-spacing: .06em; }
+.vopt small { display: block; color: var(--muted); font-size: .8rem; line-height: 1.5; }
+.vopt .btn { padding: 5px 14px; font-size: .85rem; letter-spacing: .08em; }
 .mic.on { background: rgba(217,192,142,.18); }
 .mic.rec { background: #a94a3a; border-color: #a94a3a; animation: pulse 1.2s infinite; }
 @media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
@@ -91,6 +102,7 @@ h1 { margin: -6px 0 0; font-size: clamp(1.5rem, 3.4vw, 2rem); font-weight: 600; 
     <video class="bow" id="vBow" src="../avatar/bow.mp4" muted playsinline preload="auto" aria-hidden="true"></video>
     <div class="cap" id="cap" aria-live="polite"></div>
     <button type="button" class="fs" id="fsBtn"><svg viewBox="0 0 24 24"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></svg><span>全螢幕</span></button>
+    <button type="button" class="fs vbtn" id="voiceBtn" hidden><svg viewBox="0 0 24 24"><path d="M4 10v4M8 7v10M12 4v16M16 8v8M20 11v2"/></svg><span>聲音</span></button>
   </div>
   <div class="side" id="side">
     <span class="eyebrow">TALK WITH HIM</span>
@@ -108,6 +120,12 @@ h1 { margin: -6px 0 0; font-size: clamp(1.5rem, 3.4vw, 2rem); font-weight: 600; 
   </div>
 </div>
 <button type="button" class="veil" id="veil" hidden><i><svg viewBox="0 0 24 24"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></svg></i><b>輕觸畫面，和他說說話</b><span>請允許使用麥克風</span></button>
+<div class="vpanel" id="vPanel" hidden role="dialog" aria-modal="true" aria-labelledby="vPanelTitle"><div>
+  <div style="display:flex;justify-content:space-between;align-items:center;gap:12px"><h2 id="vPanelTitle">選擇他的聲音</h2><button class="btn ghost" type="button" id="vClose">完成</button></div>
+  <div id="vList"></div>
+  <p class="note">這些是預設的 AI 合成聲音，不是他生前的原聲。</p>
+</div></div>
+<audio id="vSample" preload="none"></audio>
 <audio id="vAudio" preload="auto"></audio>
 <script>
 // Prepared answers in his voice. Idle loop at rest, talk loop while a clip plays, bow after some answers.
@@ -118,7 +136,25 @@ h1 { margin: -6px 0 0; font-size: clamp(1.5rem, 3.4vw, 2rem); font-weight: 600; 
   const chips = $('chips'), moreBtn = $('moreChips'), sayForm = $('sayForm'), sayInput = $('sayInput'), micBtn = $('micBtn'), you = $('you');
   let qa = [], caps = [], state = 'idle', withBow = false, fb = 0;
 
-  const ready = fetch('../avatar/qa.json').then(r => r.json()).then(j => { qa = j; renderChips(); }).catch(() => { you.textContent = '回答載入失敗，請重新整理。'; });
+  // Settings, voices and answers come from config.json, written by the admin tool on publish.
+  // Without it (older deploy) the page keeps working with the original single voice.
+  let site = { handsFree: true, showCaptions: true, chipsShown: 10, greetingId: 'hello', speed: 1, volume: 1, bowAfter: true };
+  let voices = [], voice = null, capsByVoice = {};
+  const VKEY = 'memorial-talk-voice';
+  const clipUrl = id => voice ? `../avatar/voices/${voice}/qa/${id}.mp3` : `../avatar/qa/${id}.mp3`;
+  const loadCaps = v => capsByVoice[v] ? Promise.resolve(capsByVoice[v]) : fetch(`../avatar/voices/${v}/caps.json`).then(r => r.json()).then(j => (capsByVoice[v] = j));
+  const ready = fetch('../config.json', { cache: 'no-cache' }).then(r => { if (!r.ok) throw 0; return r.json(); }).then(async c => {
+    Object.assign(site, c.site); voices = c.voices; qa = c.qa;
+    let pick = new URLSearchParams(location.search).get('v');
+    if (!pick && site.allowVoicePick) try { pick = localStorage.getItem(VKEY); } catch {}
+    voice = voices.some(x => x.id === pick) ? pick : c.defaultVoice;
+    await loadCaps(voice);
+    if (site.title) { document.title = site.title; document.querySelector('h1').textContent = site.title; }
+    if (site.lead) document.querySelector('.lead').textContent = site.lead;
+    if (site.note) document.querySelector('.note').textContent = site.note;
+    $('voiceBtn').hidden = !(site.allowVoicePick && voices.length > 1);
+  }).catch(() => fetch('../avatar/qa.json').then(r => r.json()).then(j => { qa = j; voice = null; }))
+    .then(renderChips).catch(() => { you.textContent = '回答載入失敗，請重新整理。'; });
 
   const rest = () => {
     state = 'idle'; stage.classList.remove('bowing', 'speaking'); idle.play().catch(() => {}); side.classList.remove('busy');
@@ -131,7 +167,7 @@ h1 { margin: -6px 0 0; font-size: clamp(1.5rem, 3.4vw, 2rem); font-weight: 600; 
     if (state !== 'talking') return;
     const t = audio.currentTime;
     const c = caps.find(x => t >= x.s && t < x.e + .25);
-    if (c) { if (cap.textContent !== c.t) cap.textContent = c.t; cap.classList.add('on'); } else cap.classList.remove('on');
+    if (c && site.showCaptions !== false) { if (cap.textContent !== c.t) cap.textContent = c.t; cap.classList.add('on'); } else cap.classList.remove('on');
   });
   audio.addEventListener('ended', () => {
     if (!withBow) { rest(); return; }
@@ -162,21 +198,22 @@ h1 { margin: -6px 0 0; font-size: clamp(1.5rem, 3.4vw, 2rem); font-weight: 600; 
     if (!it || state !== 'idle') return;
     if (rec) rec.abort();   // never listen while he speaks
     you.textContent = '你說：' + text;
-    audio.src = '../avatar/qa/' + it.id + '.mp3';
-    caps = it.caps || []; withBow = !!it.bow;
+    audio.src = clipUrl(it.id);
+    audio.defaultPlaybackRate = audio.playbackRate = site.speed || 1; audio.volume = Math.min(1, site.volume || 1);
+    caps = (voice ? capsByVoice[voice][it.id] : it.caps) || []; withBow = !!it.bow && site.bowAfter !== false;
     state = 'talking'; side.classList.add('busy'); stopBtn.hidden = false;
     talk.currentTime = 0; stage.classList.add('speaking');
     audio.play().catch(rest); talk.play().catch(() => {});
   }
   function renderChips() {
-    const list = qa.filter(x => x.chip);
+    const list = qa.filter(x => x.chip), shown = site.chipsShown ?? 10;
     list.forEach((it, i) => {
       const b = document.createElement('button');
-      b.type = 'button'; b.textContent = it.chip; b.hidden = i >= 10;
+      b.type = 'button'; b.textContent = it.chip; b.hidden = i >= shown;
       b.addEventListener('click', () => answer(it.chip, it));
       chips.append(b);
     });
-    if (list.length > 10) moreBtn.hidden = false;
+    if (list.length > shown) moreBtn.hidden = false;
   }
   moreBtn.addEventListener('click', () => { chips.querySelectorAll('button').forEach(b => { b.hidden = false; }); moreBtn.hidden = true; });
   sayForm.addEventListener('submit', e => {
@@ -193,7 +230,7 @@ h1 { margin: -6px 0 0; font-size: clamp(1.5rem, 3.4vw, 2rem); font-weight: 600; 
   let rec = null, handsFree = false, keyboardMic = !SR;
   const useKeyboardMic = msg => { handsFree = false; micBtn.classList.remove('on', 'rec'); you.textContent = msg || '請打字，或按手機鍵盤上的麥克風 🎤 說話，說完按「說」。'; };
   function listen() {
-    if (!handsFree || rec || state !== 'idle' || keyboardMic) return;
+    if (!handsFree || rec || state !== 'idle' || keyboardMic || !$('vPanel').hidden) return;
     rec = new SR(); rec.lang = 'zh-TW'; rec.interimResults = true;
     let heard = '';
     rec.onresult = e => { heard = Array.from(e.results, r => r[0].transcript).join(''); you.textContent = '你說：' + heard; };
@@ -219,10 +256,43 @@ h1 { margin: -6px 0 0; font-size: clamp(1.5rem, 3.4vw, 2rem); font-weight: 600; 
   // Start: greet, then listen. Browsers that block sound until a tap get one tap on the veil.
   const veil = $('veil');
   const greet = () => {
-    handsFree = !keyboardMic; micBtn.classList.toggle('on', handsFree);
-    const hi = qa.find(x => x.id === 'hello');
-    if (hi) { answer('（開始）', hi); you.textContent = ''; } else listen();
+    handsFree = !keyboardMic && site.handsFree !== false; micBtn.classList.toggle('on', handsFree);
+    const hi = site.greetingId && qa.find(x => x.id === site.greetingId);
+    if (hi) { answer('（開始）', hi); you.textContent = ''; } else if (handsFree) listen();
   };
+
+  // Voice picker: visitors choose among the voices the family opened; the choice is remembered on this device
+  const vPanel = $('vPanel'), vList = $('vList'), sample = $('vSample');
+  const renderVoices = () => {
+    vList.replaceChildren();
+    for (const g of ['男', '女']) {
+      const vs = voices.filter(x => x.gender === g);
+      if (!vs.length) continue;
+      const h = document.createElement('h3'); h.textContent = g + '聲'; vList.append(h);
+      for (const x of vs) {
+        const row = document.createElement('div'); row.className = 'vopt' + (x.id === voice ? ' cur' : '');
+        const t = document.createElement('div'); const b = document.createElement('b'); b.textContent = x.name; const s = document.createElement('small'); s.textContent = x.desc; t.append(b, s);
+        const hear = document.createElement('button'); hear.type = 'button'; hear.className = 'btn ghost'; hear.textContent = '試聽';
+        hear.onclick = () => { sample.src = `../avatar/voices/${x.id}/sample.mp3`; sample.play().catch(() => {}); };
+        const use = document.createElement('button'); use.type = 'button'; use.className = 'btn' + (x.id === voice ? '' : ' ghost'); use.textContent = x.id === voice ? '使用中' : '選用';
+        use.onclick = async () => {
+          await loadCaps(x.id).catch(() => null); if (!capsByVoice[x.id]) return;
+          voice = x.id; try { localStorage.setItem(VKEY, voice); } catch {}
+          renderVoices();
+        };
+        row.append(t, hear, use); vList.append(row);
+      }
+    }
+  };
+  $('voiceBtn').addEventListener('click', () => {
+    if (state !== 'idle') { audio.pause(); rest(); }
+    if (rec) rec.abort();
+    renderVoices(); vPanel.hidden = false; $('vClose').focus();
+  });
+  const closeVoices = () => { vPanel.hidden = true; sample.pause(); if (handsFree) listen(); };
+  $('vClose').addEventListener('click', closeVoices);
+  vPanel.addEventListener('click', e => { if (e.target === vPanel) closeVoices(); });
+  addEventListener('keydown', e => { if (e.key === 'Escape' && !vPanel.hidden) closeVoices(); });
   const soundAllowed = () => {
     if (navigator.getAutoplayPolicy) return navigator.getAutoplayPolicy('mediaelement') === 'allowed';
     const AC = window.AudioContext || window.webkitAudioContext;

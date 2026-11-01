@@ -99,7 +99,15 @@ body.full .stage::after { content: ""; position: absolute; left: 0; right: 0; bo
   const stage = $('stage'), idle = $('vIdle'), talk = $('vTalk'), bow = $('vBow'), audio = $('audio'), cap = $('cap');
   const bar = $('bar'), fill = $('barFill'), time = $('time'), playBtn = $('playBtn'), stopBtn = $('stopBtn'), fsBtn = $('fsBtn');
   let caps = [], state = 'idle';
-  fetch('avatar/captions.json').then(r => r.json()).then(j => { caps = j; }).catch(() => {});
+  // Same voice as the talk page: ?v=, then the visitor's remembered pick, then the family's default
+  fetch('config.json', { cache: 'no-cache' }).then(r => { if (!r.ok) throw 0; return r.json(); }).then(c => {
+    let v = new URLSearchParams(location.search).get('v');
+    if (!v && c.site.allowVoicePick) try { v = localStorage.getItem('memorial-talk-voice'); } catch {}
+    if (!c.voices.some(x => x.id === v)) v = c.defaultVoice;
+    audio.src = `avatar/voices/${v}/confession.mp3`;
+    if (c.site.speed) audio.defaultPlaybackRate = audio.playbackRate = c.site.speed;
+    return fetch(`avatar/voices/${v}/caps.json`).then(r => r.json()).then(j => { caps = c.site.showCaptions === false ? [] : j.confession; });
+  }).catch(() => fetch('avatar/captions.json').then(r => r.json()).then(j => { caps = j; })).catch(() => {});
 
   const mmss = s => { s = Math.max(0, Math.floor(s || 0)); return String(Math.floor(s / 60)).padStart(2, '0') + ':' + String(s % 60).padStart(2, '0'); };
   const showTime = () => {
