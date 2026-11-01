@@ -57,80 +57,13 @@ h2 { font-family: var(--brush); font-size: clamp(1.9rem, 4.8vw, 2.6rem); font-we
 .menu svg { width: 26px; height: 26px; stroke: var(--gold); fill: none; stroke-width: 1.5; }
 @media (max-width: 560px) { .menu nav { grid-template-columns: repeat(2, 1fr); } }
 
-/* Opening film: takes over the tuck-under-the-menu spot; the talk section follows in the same dark band */
-.film-sec { background: #2b1f16; color: #f3e6d0; margin-top: -34px; padding-top: calc(clamp(56px, 9vw, 104px) + 34px); padding-bottom: 0; }
+/* Opening film: dark band tucked under the menu */
+.film-sec { background: #2b1f16; color: #f3e6d0; margin-top: -34px; padding-top: calc(clamp(56px, 9vw, 104px) + 34px); }
 .film-sec .eyebrow { color: var(--gold-soft); }
 .film-sec .sec-head::after { background: var(--gold-soft); }
 .film { max-width: 860px; margin: 0 auto; border-radius: 10px; overflow: hidden; background: #1e150e; aspect-ratio: 16/9; box-shadow: 0 24px 60px rgba(0,0,0,.45); }
 .film video { width: 100%; height: 100%; object-fit: cover; }
 .film-note { margin: 14px 0 0; text-align: center; font-size: .85rem; letter-spacing: .15em; color: #a8957a; }
-.film-sec + .voice-sec { margin-top: 0; padding-top: clamp(56px, 9vw, 104px); }
-
-/* Digital human */
-.voice-sec { background: #2b1f16; color: #f3e6d0; margin-top: -34px; padding-top: calc(clamp(56px, 9vw, 104px) + 34px); }
-.voice-sec .eyebrow { color: var(--gold-soft); }
-.voice-sec .sec-head::after { background: var(--gold-soft); }
-.voice { display: grid; grid-template-columns: minmax(0, 360px) minmax(0, 1fr); gap: clamp(28px, 6vw, 64px); align-items: center; justify-content: center; }
-@media (max-width: 720px) { .voice { grid-template-columns: 1fr; justify-items: center; } }
-.stage { position: relative; width: 100%; max-width: 360px; aspect-ratio: 9/16; border-radius: 10px; overflow: hidden; background: #1e150e url(avatar/idle.jpg) center/cover; box-shadow: 0 24px 60px rgba(0,0,0,.45); }
-.stage video { position: absolute; inset: 0; z-index: 0; width: 100%; height: 100%; object-fit: cover; transition: opacity .35s; }
-.stage .talk, .stage .bow { opacity: 0; }
-.stage.speaking .talk, .stage.bowing .bow { opacity: 1; }
-.stage.speaking .idle, .stage.bowing .idle { opacity: 0; }
-.cap { position: absolute; z-index: 3; left: 0; right: 0; bottom: 0; padding: 48px 18px 20px; background: linear-gradient(0deg, rgba(20,13,8,.82), transparent); font-family: var(--hand); font-size: 1.15rem; line-height: 1.6; text-align: center; color: #fff6e6; text-shadow: 0 1px 6px rgba(0,0,0,.6); min-height: 5.2em; display: flex; align-items: flex-end; justify-content: center; opacity: 0; transition: opacity .3s; }
-.cap.on { opacity: 1; }
-.voice-side { display: grid; gap: 18px; justify-items: start; max-width: 26em; }
-@media (max-width: 720px) { .voice-side { justify-items: center; text-align: center; } }
-.voice-side p { margin: 0; color: #e3d2b6; }
-.ctrl { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; }
-.btn.ghost { background: transparent; color: var(--gold-soft); border-color: var(--gold-soft); }
-.note { font-size: .82rem; color: #a8957a; }
-.ask { display: grid; gap: 12px; width: 100%; }
-.ctrl .you { flex: 1; }
-.btn.small { padding: 6px 18px; font-size: .9rem; }
-.letter-link { color: var(--gold-soft); text-decoration: none; letter-spacing: .12em; border-bottom: 1px solid rgba(217,192,142,.4); padding-bottom: 2px; }
-.letter-link:hover, .letter-link:focus-visible { color: #fff3dc; outline: none; }
-.fs { position: absolute; top: 10px; right: 10px; z-index: 2; display: flex; align-items: center; gap: 6px; padding: 6px 12px; border-radius: 99px; border: 1px solid rgba(255,243,220,.4); background: rgba(20,13,8,.45); color: #fff6e6; font: inherit; font-size: .82rem; letter-spacing: .1em; cursor: pointer; backdrop-filter: blur(4px); }
-.fs svg { width: 16px; height: 16px; fill: none; stroke: currentColor; stroke-width: 1.8; }
-.fs:hover, .fs:focus-visible { background: rgba(20,13,8,.7); outline: none; }
-/* Full screen: real fullscreen when the browser allows it, otherwise a fixed overlay */
-.voice.full { position: fixed; inset: 0; z-index: 60; margin: 0; background: #1b130c; grid-template-columns: auto minmax(0, 420px); gap: 32px; padding: 0 max(16px, env(safe-area-inset-right, 0px)) 0 0; align-items: center; justify-content: center; overflow: hidden; }
-.voice.full .stage { max-width: none; height: 100dvh; width: auto; border-radius: 0; box-shadow: none; }
-/* Zoom in on him: head and torso fill the frame */
-.voice.full .cap { font-size: clamp(1.15rem, 2.6vh, 1.7rem); }
-.voice.full .fs { top: max(12px, env(safe-area-inset-top, 0px)); }
-.voice.full .letter-link, .voice.full .note, .voice.full .more { display: none; }
-/* Phones and portrait screens: he fills the whole screen, the chat floats over the bottom */
-@media (max-width: 720px), (max-aspect-ratio: 4/5) {
-  .voice.full { display: block; padding: 0; }
-  .voice.full .stage { position: absolute; inset: 0; width: 100%; height: 100%; aspect-ratio: auto; }
-  .voice.full .cap { bottom: var(--panel, 170px); padding-bottom: 12px; background: none; min-height: 0; }
-  .voice.full .voice-side { position: absolute; left: 0; right: 0; bottom: 0; z-index: 3; max-width: none; gap: 10px; padding: 40px max(12px, env(safe-area-inset-right, 0px)) max(12px, env(safe-area-inset-bottom, 0px)) max(12px, env(safe-area-inset-left, 0px)); background: linear-gradient(0deg, rgba(20,13,8,.94) 62%, rgba(20,13,8,0)); justify-items: stretch; text-align: left; }
-  .voice.full .ask { gap: 10px; }
-  .voice.full .ask h3 { display: none; }
-  .voice.full .chips { flex-wrap: nowrap; overflow-x: auto; justify-content: flex-start; padding-bottom: 2px; scrollbar-width: none; }
-  .voice.full .chips::-webkit-scrollbar { display: none; }
-  .voice.full .chips button { flex: none; background: rgba(20,13,8,.55); }
-  .voice.full .chips button[hidden] { display: inline-block !important; }
-}
-.ask h3 { margin: 0; font-family: var(--brush); font-size: 1.35rem; letter-spacing: .12em; color: #fff3dc; font-weight: 400; }
-.chips { display: flex; flex-wrap: wrap; gap: 8px; }
-@media (max-width: 720px) { .chips { justify-content: center; } }
-.chips button, .more { font: inherit; font-size: .92rem; padding: 6px 14px; border-radius: 99px; border: 1px solid rgba(217,192,142,.45); background: rgba(255,243,220,.06); color: #f3e6d0; cursor: pointer; }
-.chips button:hover, .chips button:focus-visible { border-color: var(--gold-soft); background: rgba(255,243,220,.14); outline: none; }
-.more { justify-self: start; border-style: dashed; color: var(--gold-soft); }
-@media (max-width: 720px) { .more { justify-self: center; } }
-.say { display: flex; gap: 8px; padding: 0; background: none; border: 0; }
-.say input { flex: 1; min-width: 0; background: rgba(255,243,220,.08); border-color: rgba(217,192,142,.4); color: #fff6e6; }
-.say input::placeholder { color: #a8957a; }
-.say .btn { padding: 10px 20px; }
-.mic { flex: none; width: 46px; border-radius: 50%; border: 1px solid var(--gold-soft); background: transparent; cursor: pointer; display: grid; place-items: center; }
-.mic svg { width: 22px; height: 22px; fill: none; stroke: var(--gold-soft); stroke-width: 1.6; }
-.mic.rec { background: #a94a3a; border-color: #a94a3a; animation: pulse 1.2s infinite; }
-.mic.rec svg { stroke: #fff; }
-@keyframes pulse { 50% { box-shadow: 0 0 0 8px rgba(169,74,58,.25); } }
-.you { margin: 0; min-height: 1.6em; font-size: .9rem; color: var(--gold-soft); }
-.busy .chips button, .busy .say > * { opacity: .5; pointer-events: none; }
 
 /* Timeline */
 .tl { display: grid; gap: clamp(40px, 7vw, 72px); position: relative; }
@@ -234,36 +167,6 @@ footer { text-align: center; padding-block: 40px 56px; color: var(--ink-soft); f
   <p class="film-note">約 2 分鐘・請開啟聲音</p>
 </div></section>
 
-<section class="sec voice-sec" id="voice"><div class="wrap">
-  <div class="sec-head"><span class="eyebrow">TALK WITH HIM</span><h2>和他說說話</h2></div>
-  <div class="voice" id="dh">
-    <div class="stage" id="stage">
-      <video class="idle" id="vIdle" src="avatar/idle.mp4" poster="avatar/idle.jpg" muted loop autoplay playsinline preload="auto" aria-hidden="true"></video>
-      <video class="talk" id="vTalk" src="avatar/talk.mp4" poster="avatar/idle.jpg" muted loop playsinline preload="auto" aria-label="王大明先生的數字人影像"></video>
-      <video class="bow" id="vBow" src="avatar/bow.mp4" muted playsinline preload="auto" aria-hidden="true"></video>
-      <div class="cap" id="cap" aria-live="polite"></div>
-      <button type="button" class="fs" id="fsBtn" aria-label="全螢幕"><svg viewBox="0 0 24 24"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></svg><span>全螢幕</span></button>
-    </div>
-    <div class="voice-side">
-      <div class="ask">
-        <h3>想跟他說什麼？</h3>
-        <div class="chips" id="chips"></div>
-        <button type="button" class="more" id="moreChips" hidden>更多話題</button>
-        <form class="say" id="sayForm">
-          <input id="sayInput" maxlength="60" placeholder="打字，或按麥克風用說的" aria-label="想跟他說的話" autocomplete="off">
-          <button type="button" class="mic" id="micBtn" hidden aria-label="用說的"><svg viewBox="0 0 24 24"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></svg></button>
-          <button class="btn" type="submit" id="sayBtn">說</button>
-        </form>
-        <div class="ctrl"><p class="you" id="you" aria-live="polite"></p><button class="btn ghost small" type="button" id="vStop" hidden>停止</button></div>
-      </div>
-      <a class="letter-link" href="https://gavin1424.github.io/memorial-talk/talk.html" target="_blank" rel="noopener">想直接用說的？開啟語音對話頁　→</a>
-      <a class="letter-link" href="letter.html">聽他的告白　→</a>
-      <p class="note">此為依照片與家人回憶製作的 AI 數字人，回答是家人事先寫好的話，聲音為合成語音。</p>
-    </div>
-  </div>
-  <audio id="vAudio" preload="auto"></audio>
-</div></section>
-
 <section class="sec" id="life"><div class="wrap">
   <div class="sec-head"><span class="eyebrow">LIFE STORY</span><h2>生平介紹</h2></div>
   <div class="tl">
@@ -350,128 +253,6 @@ footer { text-align: center; padding-block: 40px 56px; color: var(--ink-soft); f
     }
     requestAnimationFrame(tick);
   })();
-})();
-
-// Digital human chat: prepared answers in his voice. Talk loop while a clip plays,
-// optional bow at the end, then rest.
-(() => {
-  const $ = id => document.getElementById(id);
-  const dh = $('dh'), stage = $('stage'), idle = $('vIdle'), talk = $('vTalk'), bow = $('vBow'), audio = $('vAudio'), cap = $('cap');
-  const stopBtn = $('vStop'), side = dh.querySelector('.voice-side'), ask = side.querySelector('.ask'), fsBtn = $('fsBtn');
-  const chips = $('chips'), moreBtn = $('moreChips'), sayForm = $('sayForm'), sayInput = $('sayInput'), micBtn = $('micBtn'), you = $('you');
-  let qa = [], caps = [], state = 'idle', withBow = false, fb = 0;
-
-  fetch('avatar/qa.json').then(r => r.json()).then(j => { qa = j; renderChips(); }).catch(() => { ask.hidden = true; });
-
-  const rest = () => {
-    state = 'idle'; stage.classList.remove('bowing', 'speaking'); idle.play().catch(() => {}); side.classList.remove('busy');
-    talk.pause(); talk.currentTime = 0; bow.pause(); bow.currentTime = 0;
-    cap.classList.remove('on'); stopBtn.hidden = true;
-  };
-  stopBtn.addEventListener('click', () => { audio.pause(); rest(); });
-  audio.addEventListener('timeupdate', () => {
-    if (state !== 'talking') return;
-    const t = audio.currentTime;
-    const c = caps.find(x => t >= x.s && t < x.e + .25);
-    if (c) { if (cap.textContent !== c.t) cap.textContent = c.t; cap.classList.add('on'); } else cap.classList.remove('on');
-  });
-  audio.addEventListener('ended', () => {
-    if (!withBow) { rest(); return; }
-    state = 'bowing'; cap.classList.remove('on');
-    bow.currentTime = 0; stage.classList.remove('speaking'); stage.classList.add('bowing');
-    bow.play().catch(rest); setTimeout(() => talk.pause(), 400);
-  });
-  bow.addEventListener('ended', rest);
-
-  // Pick the closest prepared answer by keywords, else a gentle catch-all
-  const norm = s => s.replace(/[\s，。！？、,.!?~～…「」『』"'：:；;（）()／/]/g, '');
-  function match(text) {
-    const t = norm(text);
-    let best = null, top = 0;
-    for (const it of qa) {
-      if (it.fallback) continue;
-      let s = 0;
-      for (const k of it.keys) if (t.includes(k)) s += k.length * 2 + 1;
-      const pool = it.chip + it.keys.join('');
-      for (let i = 0; i < t.length - 1; i++) if (pool.includes(t.slice(i, i + 2))) s += 1;
-      if (s > top) { top = s; best = it; }
-    }
-    if (top >= 2) return best;
-    const fbs = qa.filter(x => x.fallback);
-    return fbs[fb++ % fbs.length];
-  }
-  function answer(text, it) {
-    if (!it || state !== 'idle') return;
-    you.textContent = '你說：' + text;
-    audio.src = 'avatar/qa/' + it.id + '.mp3';
-    caps = it.caps || []; withBow = !!it.bow;
-    state = 'talking'; side.classList.add('busy'); stopBtn.hidden = false;
-    talk.currentTime = 0; stage.classList.add('speaking');
-    audio.play().catch(rest); talk.play().catch(() => {});
-  }
-  function renderChips() {
-    const list = qa.filter(x => x.chip);
-    list.forEach((it, i) => {
-      const b = document.createElement('button');
-      b.type = 'button'; b.textContent = it.chip; b.hidden = i >= 8;
-      b.addEventListener('click', () => answer(it.chip, it));
-      chips.append(b);
-    });
-    if (list.length > 8) moreBtn.hidden = false;
-  }
-  moreBtn.addEventListener('click', () => { chips.querySelectorAll('button').forEach(b => { b.hidden = false; }); moreBtn.hidden = true; });
-  sayForm.addEventListener('submit', e => {
-    e.preventDefault();
-    const text = sayInput.value.trim();
-    if (!text || !qa.length) return;
-    sayInput.value = '';
-    answer(text, match(text));
-  });
-
-  // Speech input where the browser allows it; otherwise the phone keyboard's mic still works
-  // (an embedded page can't open the mic, so there the button hands off to the keyboard's own mic)
-  const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
-  let rec = null, keyboardMic = !SR || window.top !== window;
-  // Inside claude.ai the mic is off-limits, so first try the stand-alone voice page
-  const voicePage = 'https://gavin1424.github.io/memorial-talk/talk.html';
-  const useKeyboardMic = () => {
-    const w = window.top !== window ? window.open(voicePage, '_blank') : null;
-    if (w) { w.opener = null; return; }
-    sayInput.focus();
-    you.textContent = '請按手機鍵盤上的麥克風 🎤 說話，說完按「說」，或開啟下方的語音對話頁。';
-  };
-  micBtn.hidden = false;
-  micBtn.addEventListener('click', () => {
-    if (keyboardMic) { useKeyboardMic(); return; }
-    if (rec) { rec.stop(); return; }
-    rec = new SR(); rec.lang = 'zh-TW'; rec.interimResults = true;
-    sayInput.value = '';
-    rec.onresult = e => { sayInput.value = Array.from(e.results, r => r[0].transcript).join(''); };
-    rec.onerror = e => {
-      if (e.error === 'not-allowed' || e.error === 'service-not-allowed' || e.error === 'audio-capture') { keyboardMic = true; useKeyboardMic(); }
-    };
-    rec.onend = () => { micBtn.classList.remove('rec'); rec = null; if (sayInput.value.trim()) sayForm.requestSubmit(); };
-    micBtn.classList.add('rec');
-    try { rec.start(); } catch { rec = null; micBtn.classList.remove('rec'); keyboardMic = true; useKeyboardMic(); }
-  });
-
-  // Full screen: browser fullscreen when allowed, fixed overlay as the fallback
-  const label = fsBtn.querySelector('span');
-  new ResizeObserver(() => dh.style.setProperty('--panel', side.offsetHeight + 'px')).observe(side);
-  const setFull = on => {
-    dh.classList.toggle('full', on); document.body.style.overflow = on ? 'hidden' : '';
-    label.textContent = on ? '離開全螢幕' : '全螢幕'; fsBtn.setAttribute('aria-label', label.textContent);
-  };
-  fsBtn.addEventListener('click', async () => {
-    if (dh.classList.contains('full')) {
-      if (document.fullscreenElement) await document.exitFullscreen().catch(() => {});
-      setFull(false); return;
-    }
-    setFull(true);
-    if (dh.requestFullscreen) await dh.requestFullscreen().catch(() => {});
-  });
-  document.addEventListener('fullscreenchange', () => { if (!document.fullscreenElement && dh.classList.contains('full')) setFull(false); });
-  addEventListener('keydown', e => { if (e.key === 'Escape' && dh.classList.contains('full') && !document.fullscreenElement) setFull(false); });
 })();
 
 // Lightbox
