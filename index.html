@@ -1,115 +1,367 @@
 <!doctype html>
 <html lang="zh-Hant">
-<head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>和他說說話</title>
-<meta name="robots" content="noindex">
+<style>body{margin:0}[hidden]{display:none!important}</style>
+<title>王大明先生追思網</title>
+<meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@400;600;900&family=LXGW+WenKai+TC&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@400;600;900&family=LXGW+WenKai+TC:wght@400;700&family=Ma+Shan+Zheng&display=swap">
 <style>
-/* Layout: he stands full height on the left (or fills the phone), the conversation sits beside or over him */
+/* Layout: full-bleed sunset hero with vertical title, then a calm single-column story — timeline, album, candle, guestbook */
 :root {
-  --bg: #1f160f;
-  --bg-2: #2b1f16;
-  --ink: #f3e6d0;
-  --ink-soft: #c9b799;
-  --muted: #a8957a;
+  --paper: #f6f0e6;
+  --paper-2: #efe5d4;
+  --ink: #3b2a1e;
+  --ink-soft: #6b5646;
   --gold: #a9834a;
   --gold-soft: #d9c08e;
+  --line: #dccbb0;
+  --card: #fffaf2;
+  --shade: rgba(43, 28, 16, .55);
   --serif: "Noto Serif TC", "Songti TC", "PMingLiU", serif;
   --hand: "LXGW WenKai TC", "Noto Serif TC", "Kaiti TC", serif;
-  color-scheme: dark;
+  --brush: "Ma Shan Zheng", "LXGW WenKai TC", "Kaiti TC", serif;
+  color-scheme: light;
 }
 * { box-sizing: border-box; }
-[hidden] { display: none !important; }
-html, body { margin: 0; height: 100%; }
-body { background: radial-gradient(ellipse at 40% 30%, var(--bg-2), var(--bg) 70%); background-color: var(--bg); color: var(--ink); font-family: var(--serif); font-size: 16px; line-height: 1.8; overflow: hidden; }
-.room { height: 100dvh; display: grid; grid-template-columns: auto minmax(0, 420px); gap: 40px; align-items: center; justify-content: center; padding: 0 max(16px, env(safe-area-inset-right, 0px)) 0 0; }
-.stage { position: relative; height: 100dvh; aspect-ratio: 9/16; max-width: 100vw; overflow: hidden; background: #1e150e url(avatar/idle.jpg) center/cover; }
+body { background: var(--paper); color: var(--ink); font-family: var(--hand); font-size: 16px; line-height: 1.85; }
+img, video { max-width: 100%; display: block; }
+a { color: inherit; }
+.wrap { max-width: 980px; margin: 0 auto; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+h2 { font-family: var(--brush); font-size: clamp(1.9rem, 4.8vw, 2.6rem); font-weight: 400; letter-spacing: .12em; margin: 0; text-wrap: balance; }
+.eyebrow { color: var(--gold); letter-spacing: .3em; font-size: .8rem; }
+.sec { padding-block: clamp(56px, 9vw, 104px); }
+.sec-head { display: grid; gap: 6px; justify-items: center; text-align: center; margin-bottom: 40px; }
+.sec-head::after { content: ""; width: 56px; height: 1px; background: var(--gold); margin-top: 10px; }
+
+/* Hero */
+.hero { position: relative; color: #fff8ec; overflow: hidden; background: #2e2117; }
+.hero > img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: 30% 40%; }
+.hero::after { content: ""; position: absolute; inset: 0; background: linear-gradient(90deg, rgba(30,20,12,.15) 30%, rgba(30,20,12,.62) 75%), linear-gradient(0deg, rgba(30,20,12,.55), transparent 45%); }
+#petals { position: absolute; inset: 0; width: 100%; height: 100%; z-index: 1; pointer-events: none; }
+.hero .wrap { position: relative; z-index: 2; min-height: min(86vh, 760px); display: flex; justify-content: flex-end; align-items: flex-end; gap: clamp(20px, 5vw, 56px); padding-block: 72px 56px; }
+.vtitle { writing-mode: vertical-rl; font-family: var(--brush); font-size: clamp(2.6rem, 7vw, 4.2rem); font-weight: 400; letter-spacing: .25em; line-height: 1; text-shadow: 0 2px 18px rgba(0,0,0,.35); align-self: flex-start; }
+.who { display: grid; gap: 10px; max-width: 22em; }
+.who .name { font-family: var(--brush); font-size: clamp(2.6rem, 8vw, 4rem); font-weight: 400; letter-spacing: .12em; line-height: 1.2; }
+.who .name small { font-size: .42em; font-weight: 400; letter-spacing: .1em; margin-left: .3em; }
+.who .years { letter-spacing: .3em; font-variant-numeric: tabular-nums; color: var(--gold-soft); }
+.who p { margin: 0; font-size: 1.05rem; }
+.rule { width: 72px; height: 1px; background: var(--gold-soft); }
+
+/* Quick menu */
+.menu { position: relative; z-index: 3; margin-top: -34px; }
+.menu nav { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
+.menu a { display: grid; justify-items: center; gap: 4px; padding: 16px 8px; background: var(--card); border: 1px solid var(--line); border-radius: 14px; text-decoration: none; letter-spacing: .12em; box-shadow: 0 8px 24px rgba(80,55,30,.08); transition: transform .2s, border-color .2s; }
+.menu a:hover, .menu a:focus-visible { transform: translateY(-2px); border-color: var(--gold); outline: none; }
+.menu svg { width: 26px; height: 26px; stroke: var(--gold); fill: none; stroke-width: 1.5; }
+@media (max-width: 560px) { .menu nav { grid-template-columns: repeat(2, 1fr); } }
+
+/* Opening film: takes over the tuck-under-the-menu spot; the talk section follows in the same dark band */
+.film-sec { background: #2b1f16; color: #f3e6d0; margin-top: -34px; padding-top: calc(clamp(56px, 9vw, 104px) + 34px); padding-bottom: 0; }
+.film-sec .eyebrow { color: var(--gold-soft); }
+.film-sec .sec-head::after { background: var(--gold-soft); }
+.film { max-width: 860px; margin: 0 auto; border-radius: 10px; overflow: hidden; background: #1e150e; aspect-ratio: 16/9; box-shadow: 0 24px 60px rgba(0,0,0,.45); }
+.film video { width: 100%; height: 100%; object-fit: cover; }
+.film-note { margin: 14px 0 0; text-align: center; font-size: .85rem; letter-spacing: .15em; color: #a8957a; }
+.film-sec + .voice-sec { margin-top: 0; padding-top: clamp(56px, 9vw, 104px); }
+
+/* Digital human */
+.voice-sec { background: #2b1f16; color: #f3e6d0; margin-top: -34px; padding-top: calc(clamp(56px, 9vw, 104px) + 34px); }
+.voice-sec .eyebrow { color: var(--gold-soft); }
+.voice-sec .sec-head::after { background: var(--gold-soft); }
+.voice { display: grid; grid-template-columns: minmax(0, 360px) minmax(0, 1fr); gap: clamp(28px, 6vw, 64px); align-items: center; justify-content: center; }
+@media (max-width: 720px) { .voice { grid-template-columns: 1fr; justify-items: center; } }
+.stage { position: relative; width: 100%; max-width: 360px; aspect-ratio: 9/16; border-radius: 10px; overflow: hidden; background: #1e150e url(avatar/idle.jpg) center/cover; box-shadow: 0 24px 60px rgba(0,0,0,.45); }
 .stage video { position: absolute; inset: 0; z-index: 0; width: 100%; height: 100%; object-fit: cover; transition: opacity .35s; }
 .stage .talk, .stage .bow { opacity: 0; }
 .stage.speaking .talk, .stage.bowing .bow { opacity: 1; }
 .stage.speaking .idle, .stage.bowing .idle { opacity: 0; }
-.cap { position: absolute; z-index: 3; left: 0; right: 0; bottom: 0; padding: 56px 18px 24px; background: linear-gradient(0deg, rgba(20,13,8,.82), transparent); font-family: var(--hand); font-size: clamp(1.15rem, 2.6vh, 1.7rem); line-height: 1.6; text-align: center; color: #fff6e6; text-shadow: 0 1px 6px rgba(0,0,0,.6); display: flex; align-items: flex-end; justify-content: center; min-height: 5.4em; opacity: 0; transition: opacity .3s; }
+.cap { position: absolute; z-index: 3; left: 0; right: 0; bottom: 0; padding: 48px 18px 20px; background: linear-gradient(0deg, rgba(20,13,8,.82), transparent); font-family: var(--hand); font-size: 1.15rem; line-height: 1.6; text-align: center; color: #fff6e6; text-shadow: 0 1px 6px rgba(0,0,0,.6); min-height: 5.2em; display: flex; align-items: flex-end; justify-content: center; opacity: 0; transition: opacity .3s; }
 .cap.on { opacity: 1; }
-.fs { position: absolute; z-index: 4; top: max(12px, env(safe-area-inset-top, 0px)); right: 12px; display: flex; align-items: center; gap: 6px; padding: 6px 12px; border-radius: 99px; border: 1px solid rgba(255,243,220,.4); background: rgba(20,13,8,.45); color: #fff6e6; font: inherit; font-size: .82rem; letter-spacing: .1em; cursor: pointer; backdrop-filter: blur(4px); }
+.voice-side { display: grid; gap: 18px; justify-items: start; max-width: 26em; }
+@media (max-width: 720px) { .voice-side { justify-items: center; text-align: center; } }
+.voice-side p { margin: 0; color: #e3d2b6; }
+.ctrl { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; }
+.btn.ghost { background: transparent; color: var(--gold-soft); border-color: var(--gold-soft); }
+.note { font-size: .82rem; color: #a8957a; }
+.ask { display: grid; gap: 12px; width: 100%; }
+.ctrl .you { flex: 1; }
+.btn.small { padding: 6px 18px; font-size: .9rem; }
+.letter-link { color: var(--gold-soft); text-decoration: none; letter-spacing: .12em; border-bottom: 1px solid rgba(217,192,142,.4); padding-bottom: 2px; }
+.letter-link:hover, .letter-link:focus-visible { color: #fff3dc; outline: none; }
+.fs { position: absolute; top: 10px; right: 10px; z-index: 2; display: flex; align-items: center; gap: 6px; padding: 6px 12px; border-radius: 99px; border: 1px solid rgba(255,243,220,.4); background: rgba(20,13,8,.45); color: #fff6e6; font: inherit; font-size: .82rem; letter-spacing: .1em; cursor: pointer; backdrop-filter: blur(4px); }
 .fs svg { width: 16px; height: 16px; fill: none; stroke: currentColor; stroke-width: 1.8; }
-.side { display: grid; grid-template-columns: minmax(0, 1fr); gap: 14px; align-content: center; max-height: 100dvh; overflow-y: auto; padding-block: 24px; }
-.eyebrow { color: var(--gold); letter-spacing: .3em; font-size: .78rem; }
-h1 { margin: -6px 0 0; font-size: clamp(1.5rem, 3.4vw, 2rem); font-weight: 600; letter-spacing: .14em; }
-.lead { margin: 0; color: var(--ink-soft); }
+.fs:hover, .fs:focus-visible { background: rgba(20,13,8,.7); outline: none; }
+/* Full screen: real fullscreen when the browser allows it, otherwise a fixed overlay */
+.voice.full { position: fixed; inset: 0; z-index: 60; margin: 0; background: #1b130c; grid-template-columns: auto minmax(0, 420px); gap: 32px; padding: 0 max(16px, env(safe-area-inset-right, 0px)) 0 0; align-items: center; justify-content: center; overflow: hidden; }
+.voice.full .stage { max-width: none; height: 100dvh; width: auto; border-radius: 0; box-shadow: none; }
+/* Zoom in on him: head and torso fill the frame */
+.voice.full .cap { font-size: clamp(1.15rem, 2.6vh, 1.7rem); }
+.voice.full .fs { top: max(12px, env(safe-area-inset-top, 0px)); }
+.voice.full .letter-link, .voice.full .note, .voice.full .more { display: none; }
+/* Phones and portrait screens: he fills the whole screen, the chat floats over the bottom */
+@media (max-width: 720px), (max-aspect-ratio: 4/5) {
+  .voice.full { display: block; padding: 0; }
+  .voice.full .stage { position: absolute; inset: 0; width: 100%; height: 100%; aspect-ratio: auto; }
+  .voice.full .cap { bottom: var(--panel, 170px); padding-bottom: 12px; background: none; min-height: 0; }
+  .voice.full .voice-side { position: absolute; left: 0; right: 0; bottom: 0; z-index: 3; max-width: none; gap: 10px; padding: 40px max(12px, env(safe-area-inset-right, 0px)) max(12px, env(safe-area-inset-bottom, 0px)) max(12px, env(safe-area-inset-left, 0px)); background: linear-gradient(0deg, rgba(20,13,8,.94) 62%, rgba(20,13,8,0)); justify-items: stretch; text-align: left; }
+  .voice.full .ask { gap: 10px; }
+  .voice.full .ask h3 { display: none; }
+  .voice.full .chips { flex-wrap: nowrap; overflow-x: auto; justify-content: flex-start; padding-bottom: 2px; scrollbar-width: none; }
+  .voice.full .chips::-webkit-scrollbar { display: none; }
+  .voice.full .chips button { flex: none; background: rgba(20,13,8,.55); }
+  .voice.full .chips button[hidden] { display: inline-block !important; }
+}
+.ask h3 { margin: 0; font-family: var(--brush); font-size: 1.35rem; letter-spacing: .12em; color: #fff3dc; font-weight: 400; }
 .chips { display: flex; flex-wrap: wrap; gap: 8px; }
-.chips button, .more { font: inherit; font-size: .92rem; padding: 6px 14px; border-radius: 99px; border: 1px solid rgba(217,192,142,.45); background: rgba(255,243,220,.06); color: var(--ink); cursor: pointer; }
+@media (max-width: 720px) { .chips { justify-content: center; } }
+.chips button, .more { font: inherit; font-size: .92rem; padding: 6px 14px; border-radius: 99px; border: 1px solid rgba(217,192,142,.45); background: rgba(255,243,220,.06); color: #f3e6d0; cursor: pointer; }
 .chips button:hover, .chips button:focus-visible { border-color: var(--gold-soft); background: rgba(255,243,220,.14); outline: none; }
 .more { justify-self: start; border-style: dashed; color: var(--gold-soft); }
-.say { display: flex; gap: 8px; }
-.say input { flex: 1; min-width: 0; font: inherit; font-size: 1rem; color: #fff6e6; background: rgba(255,243,220,.08); border: 1px solid rgba(217,192,142,.4); border-radius: 10px; padding: 10px 12px; }
-.say input::placeholder { color: var(--muted); }
-.say input:focus { outline: 2px solid var(--gold-soft); border-color: var(--gold); }
-.btn { font: inherit; letter-spacing: .15em; padding: 10px 22px; border-radius: 99px; border: 1px solid var(--gold); background: var(--gold); color: #fffaf2; cursor: pointer; }
-.btn:hover { filter: brightness(1.08); }
-.btn:focus-visible { outline: 2px solid var(--gold-soft); outline-offset: 3px; }
-.btn.ghost { background: transparent; color: var(--gold-soft); border-color: var(--gold-soft); padding: 6px 18px; font-size: .9rem; }
-.mic { flex: none; width: 48px; border-radius: 50%; border: 1px solid var(--gold-soft); background: transparent; cursor: pointer; display: grid; place-items: center; }
+@media (max-width: 720px) { .more { justify-self: center; } }
+.say { display: flex; gap: 8px; padding: 0; background: none; border: 0; }
+.say input { flex: 1; min-width: 0; background: rgba(255,243,220,.08); border-color: rgba(217,192,142,.4); color: #fff6e6; }
+.say input::placeholder { color: #a8957a; }
+.say .btn { padding: 10px 20px; }
+.mic { flex: none; width: 46px; border-radius: 50%; border: 1px solid var(--gold-soft); background: transparent; cursor: pointer; display: grid; place-items: center; }
 .mic svg { width: 22px; height: 22px; fill: none; stroke: var(--gold-soft); stroke-width: 1.6; }
 .mic.rec { background: #a94a3a; border-color: #a94a3a; animation: pulse 1.2s infinite; }
 .mic.rec svg { stroke: #fff; }
 @keyframes pulse { 50% { box-shadow: 0 0 0 8px rgba(169,74,58,.25); } }
-.status { display: flex; gap: 12px; align-items: center; min-height: 2.2em; }
-.you { flex: 1; margin: 0; font-size: .92rem; color: var(--gold-soft); }
-.note { margin: 0; font-size: .8rem; color: var(--muted); }
+.you { margin: 0; min-height: 1.6em; font-size: .9rem; color: var(--gold-soft); }
 .busy .chips button, .busy .say > * { opacity: .5; pointer-events: none; }
-/* Phones and portrait screens: he fills the screen, the chat floats over the bottom */
-@media (max-width: 760px), (max-aspect-ratio: 4/5) {
-  .room { display: block; padding: 0; }
-  .stage { position: absolute; inset: 0; width: 100%; height: 100%; aspect-ratio: auto; }
-  .cap { bottom: var(--panel, 170px); padding-bottom: 12px; background: none; min-height: 0; }
-  .side { position: absolute; z-index: 5; left: 0; right: 0; bottom: 0; max-height: none; overflow: visible; gap: 10px; padding: 40px max(12px, env(safe-area-inset-right, 0px)) max(12px, env(safe-area-inset-bottom, 0px)) max(12px, env(safe-area-inset-left, 0px)); background: linear-gradient(0deg, rgba(20,13,8,.94) 62%, rgba(20,13,8,0)); }
-  .eyebrow, h1, .lead, .note, .more { display: none; }
-  .chips { flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; }
-  .chips::-webkit-scrollbar { display: none; }
-  .chips button { flex: none; background: rgba(20,13,8,.55); }
-  .chips button[hidden] { display: inline-block !important; }
+
+/* Timeline */
+.tl { display: grid; gap: clamp(40px, 7vw, 72px); position: relative; }
+.tl::before { content: ""; position: absolute; left: 50%; top: 0; bottom: 0; width: 1px; background: var(--line); }
+.stop { display: grid; grid-template-columns: 1fr 1fr; gap: clamp(24px, 5vw, 56px); align-items: center; position: relative; }
+.stop::before { content: ""; position: absolute; left: 50%; top: 50%; width: 11px; height: 11px; margin: -5px 0 0 -5px; border-radius: 50%; background: var(--paper); border: 2px solid var(--gold); }
+.stop:nth-child(even) .media { order: 2; }
+.media { border-radius: 6px; overflow: hidden; box-shadow: 0 14px 34px rgba(60,40,20,.16); aspect-ratio: 16/10; background: var(--paper-2); }
+.media img, .media video { width: 100%; height: 100%; object-fit: cover; }
+.text { min-width: 0; }
+.text .yr { font-family: var(--serif); font-size: 2rem; font-weight: 900; color: var(--gold); font-variant-numeric: tabular-nums; letter-spacing: .06em; line-height: 1.2; }
+.text h3 { margin: 4px 0 8px; font-family: var(--brush); font-size: 1.6rem; font-weight: 400; letter-spacing: .1em; }
+.text p { margin: 0; color: var(--ink-soft); }
+@media (max-width: 720px) {
+  .tl::before { left: 6px; }
+  .stop { grid-template-columns: 1fr; padding-left: 28px; gap: 16px; }
+  .stop::before { left: 6px; top: 8px; }
+  .stop:nth-child(even) .media { order: 0; }
 }
-@media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+
+/* Album */
+.album { background: var(--paper-2); }
+.grid { display: grid; grid-template-columns: repeat(6, 1fr); gap: 12px; }
+.grid button { padding: 0; border: 0; border-radius: 6px; overflow: hidden; cursor: zoom-in; background: var(--line); }
+.grid button img { width: 100%; height: 100%; object-fit: cover; transition: transform .5s; }
+.grid button:hover img { transform: scale(1.04); }
+.grid button:focus-visible { outline: 2px solid var(--gold); outline-offset: 3px; }
+.grid .g1 { grid-column: span 4; aspect-ratio: 16/9; }
+.grid .g2 { grid-column: span 2; }
+.grid .g3, .grid .g4, .grid .g5 { grid-column: span 2; aspect-ratio: 4/3; }
+@media (max-width: 640px) { .grid { grid-template-columns: 1fr 1fr; } .grid .g1 { grid-column: span 2; } .grid .g2, .grid .g3, .grid .g4, .grid .g5 { grid-column: span 1; aspect-ratio: 1; } }
+.lightbox { position: fixed; inset: 0; z-index: 50; background: rgba(25,17,10,.9); display: grid; place-items: center; padding: max(16px, env(safe-area-inset-top, 0px)) max(16px, env(safe-area-inset-right, 0px)) max(16px, env(safe-area-inset-bottom, 0px)) max(16px, env(safe-area-inset-left, 0px)); }
+.lightbox figure { margin: 0; display: grid; gap: 12px; justify-items: center; color: #f3e6d0; }
+.lightbox img { max-height: 78vh; border-radius: 4px; }
+.lightbox button { position: absolute; top: calc(12px + env(safe-area-inset-top, 0px)); right: calc(12px + env(safe-area-inset-right, 0px)); background: none; border: 1px solid #8a7356; color: #f3e6d0; border-radius: 99px; padding: 6px 16px; font: inherit; cursor: pointer; }
+
+/* Candle */
+.candle-sec { background: #2b1f16; color: #f3e6d0; text-align: center; }
+.candle-sec .eyebrow { color: var(--gold-soft); }
+.candle-sec .sec-head::after { background: var(--gold-soft); }
+.flame-box { display: grid; justify-items: center; gap: 22px; }
+.candle { position: relative; width: 64px; height: 150px; }
+.candle .body { position: absolute; bottom: 0; left: 0; right: 0; height: 110px; border-radius: 6px 6px 4px 4px; background: linear-gradient(90deg, #e9dcc5, #fff7e8 45%, #d8c7a8); }
+.candle .wick { position: absolute; bottom: 110px; left: 31px; width: 2px; height: 10px; background: #4a3a2a; }
+.candle .flame { position: absolute; bottom: 118px; left: 22px; width: 20px; height: 34px; border-radius: 50% 50% 45% 45% / 65% 65% 35% 35%; background: radial-gradient(circle at 50% 75%, #fff 0 18%, #ffd36b 40%, #ff9c33 75%, transparent 76%); filter: drop-shadow(0 0 14px #ffb347); opacity: 0; transform: scale(.4); transform-origin: 50% 100%; transition: opacity .6s, transform .6s; }
+.candle.lit .flame { opacity: 1; transform: scale(1); animation: flicker 2.4s ease-in-out infinite; }
+@keyframes flicker { 0%,100% { transform: scale(1) rotate(-1deg); } 50% { transform: scale(1.06, .96) rotate(1.5deg); } }
+.btn { font: inherit; letter-spacing: .15em; padding: 10px 28px; border-radius: 99px; border: 1px solid var(--gold); background: var(--gold); color: #fffaf2; cursor: pointer; }
+.btn:hover { filter: brightness(1.08); }
+.btn:focus-visible { outline: 2px solid var(--gold-soft); outline-offset: 3px; }
+.btn[disabled] { opacity: .6; cursor: default; }
+.count { color: var(--gold-soft); font-variant-numeric: tabular-nums; }
+.count b { font-size: 1.6rem; color: #fff3dc; margin: 0 .2em; }
+
+/* Guestbook */
+.gb { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.3fr); gap: 32px; align-items: start; }
+@media (max-width: 760px) { .gb { grid-template-columns: 1fr; } }
+form { display: grid; gap: 14px; background: var(--card); border: 1px solid var(--line); border-radius: 14px; padding: 24px; }
+label { display: grid; gap: 6px; font-size: .9rem; letter-spacing: .1em; color: var(--ink-soft); }
+input, textarea { font: inherit; font-size: 1rem; color: var(--ink); background: var(--paper); border: 1px solid var(--line); border-radius: 8px; padding: 10px 12px; width: 100%; }
+input:focus, textarea:focus { outline: 2px solid var(--gold-soft); border-color: var(--gold); }
+textarea { min-height: 130px; resize: vertical; font-family: var(--hand); font-size: 1.1rem; }
+.hint { font-size: .85rem; color: var(--ink-soft); margin: 0; }
+.msgs { display: grid; gap: 14px; }
+.msg { background: var(--card); border: 1px solid var(--line); border-radius: 4px; padding: 18px 20px; display: grid; gap: 8px; }
+.msg p { margin: 0; font-family: var(--hand); font-size: 1.15rem; line-height: 1.8; white-space: pre-wrap; overflow-wrap: anywhere; }
+.msg .meta { display: flex; justify-content: space-between; gap: 12px; flex-wrap: wrap; font-size: .85rem; color: var(--gold); letter-spacing: .08em; }
+.empty { border: 1px dashed var(--line); border-radius: 4px; padding: 28px; text-align: center; color: var(--ink-soft); }
+
+footer { text-align: center; padding-block: 40px 56px; color: var(--ink-soft); font-size: .9rem; letter-spacing: .2em; border-top: 1px solid var(--line); }
+@media (prefers-reduced-motion: reduce) { #petals { display: none; } .candle.lit .flame { animation: none; } * { transition: none !important; } }
 </style>
-</head>
-<body>
-<div class="room">
-  <div class="stage" id="stage">
-    <video class="idle" id="vIdle" src="avatar/idle.mp4" poster="avatar/idle.jpg" muted loop autoplay playsinline preload="auto" aria-hidden="true"></video>
-    <video class="talk" id="vTalk" src="avatar/talk.mp4" muted loop playsinline preload="auto" aria-label="王大明先生的數字人影像"></video>
-    <video class="bow" id="vBow" src="avatar/bow.mp4" muted playsinline preload="auto" aria-hidden="true"></video>
-    <div class="cap" id="cap" aria-live="polite"></div>
-    <button type="button" class="fs" id="fsBtn"><svg viewBox="0 0 24 24"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></svg><span>全螢幕</span></button>
+
+<header class="hero">
+  <img src="img/sunset.jpg" alt="王大明先生坐在湖畔長椅上，身後是夕陽">
+  <canvas id="petals" aria-hidden="true"></canvas>
+  <div class="wrap">
+    <div class="who">
+      <div class="name">王大明<small>先生</small></div>
+      <div class="years">1938 — 2025</div>
+      <div class="rule"></div>
+      <p>一生勤懇善良，留下無數美好回憶。</p>
+      <p>雖然離開了我們，但您的愛與故事，永遠在我們心中。</p>
+    </div>
+    <div class="vtitle">永遠的思念</div>
   </div>
-  <div class="side" id="side">
-    <span class="eyebrow">TALK WITH HIM</span>
-    <h1>和他說說話</h1>
-    <p class="lead">點一個話題，或打字、按麥克風直接跟他說。</p>
-    <div class="chips" id="chips"></div>
-    <button type="button" class="more" id="moreChips" hidden>更多話題</button>
-    <form class="say" id="sayForm">
-      <input id="sayInput" maxlength="60" placeholder="打字，或按麥克風用說的" aria-label="想跟他說的話" autocomplete="off">
-      <button type="button" class="mic" id="micBtn" aria-label="用說的"><svg viewBox="0 0 24 24"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></svg></button>
-      <button class="btn" type="submit">說</button>
-    </form>
-    <div class="status"><p class="you" id="you" aria-live="polite"></p><button class="btn ghost" type="button" id="vStop" hidden>停止</button></div>
-    <p class="note">此為依照片與家人回憶製作的 AI 數字人，回答是家人事先寫好的話，聲音為合成語音。</p>
+</header>
+
+<div class="menu"><div class="wrap">
+  <nav aria-label="頁面導覽">
+    <a href="#life"><svg viewBox="0 0 24 24"><path d="M3 5c3-1 6-1 9 1v14c-3-2-6-2-9-1zM21 5c-3-1-6-1-9 1v14c3-2 6-2 9-1z"/></svg>生平介紹</a>
+    <a href="#album"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="2.5"/><path d="M12 9.5c-1.5-4 1.5-6 0-6s1.5 2 0 6M14.5 12c4-1.5 6 1.5 6 0s-2 1.5-6 0M12 14.5c1.5 4-1.5 6 0 6s-1.5-2 0-6M9.5 12c-4 1.5-6-1.5-6 0s2-1.5 6 0"/></svg>人生相簿</a>
+    <a href="#candle"><svg viewBox="0 0 24 24"><path d="M9 10h6v11H9zM12 3c2 2.5 2 4.5 0 5.5-2-1-2-3 0-5.5z"/></svg>點一盞燈</a>
+    <a href="#guestbook"><svg viewBox="0 0 24 24"><path d="M12 20s-7-4.4-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 5.6-7 10-7 10z"/></svg>親友留言</a>
+  </nav>
+</div></div>
+
+<section class="sec film-sec" id="film"><div class="wrap">
+  <div class="sec-head"><span class="eyebrow">IN MEMORY</span><h2>他想對大家說的話</h2></div>
+  <div class="film"><video src="film/intro.mp4" poster="film/poster.jpg" controls playsinline preload="metadata" aria-label="王大明先生追思開場影片，約兩分鐘，有聲音與字幕"></video></div>
+  <p class="film-note">約 2 分鐘・請開啟聲音</p>
+</div></section>
+
+<section class="sec voice-sec" id="voice"><div class="wrap">
+  <div class="sec-head"><span class="eyebrow">TALK WITH HIM</span><h2>和他說說話</h2></div>
+  <div class="voice" id="dh">
+    <div class="stage" id="stage">
+      <video class="idle" id="vIdle" src="avatar/idle.mp4" poster="avatar/idle.jpg" muted loop autoplay playsinline preload="auto" aria-hidden="true"></video>
+      <video class="talk" id="vTalk" src="avatar/talk.mp4" poster="avatar/idle.jpg" muted loop playsinline preload="auto" aria-label="王大明先生的數字人影像"></video>
+      <video class="bow" id="vBow" src="avatar/bow.mp4" muted playsinline preload="auto" aria-hidden="true"></video>
+      <div class="cap" id="cap" aria-live="polite"></div>
+      <button type="button" class="fs" id="fsBtn" aria-label="全螢幕"><svg viewBox="0 0 24 24"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></svg><span>全螢幕</span></button>
+    </div>
+    <div class="voice-side">
+      <div class="ask">
+        <h3>想跟他說什麼？</h3>
+        <div class="chips" id="chips"></div>
+        <button type="button" class="more" id="moreChips" hidden>更多話題</button>
+        <form class="say" id="sayForm">
+          <input id="sayInput" maxlength="60" placeholder="打字，或按麥克風用說的" aria-label="想跟他說的話" autocomplete="off">
+          <button type="button" class="mic" id="micBtn" hidden aria-label="用說的"><svg viewBox="0 0 24 24"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></svg></button>
+          <button class="btn" type="submit" id="sayBtn">說</button>
+        </form>
+        <div class="ctrl"><p class="you" id="you" aria-live="polite"></p><button class="btn ghost small" type="button" id="vStop" hidden>停止</button></div>
+      </div>
+      <a class="letter-link" href="https://gavin1424.github.io/memorial-talk/talk.html" target="_blank" rel="noopener">想直接用說的？開啟語音對話頁　→</a>
+      <a class="letter-link" href="letter.html">聽他的告白　→</a>
+      <p class="note">此為依照片與家人回憶製作的 AI 數字人，回答是家人事先寫好的話，聲音為合成語音。</p>
+    </div>
   </div>
+  <audio id="vAudio" preload="auto"></audio>
+</div></section>
+
+<section class="sec" id="life"><div class="wrap">
+  <div class="sec-head"><span class="eyebrow">LIFE STORY</span><h2>生平介紹</h2></div>
+  <div class="tl">
+    <article class="stop">
+      <div class="media"><video src="img/youth.mp4" poster="img/youth.jpg" autoplay muted loop playsinline aria-label="青年時期在校園的影像"></video></div>
+      <div class="text"><div class="yr">1960</div><h3>青春校園</h3><p>大學時代的他，總是夾著一本筆記，笑著和同學打招呼。認真讀書，也熱心幫忙每一個需要的人，這份溫暖陪了他一輩子。</p></div>
+    </article>
+    <article class="stop">
+      <div class="media"><video src="img/wedding.mp4" poster="img/wedding.jpg" autoplay muted loop playsinline preload="metadata" aria-label="王大明先生與妻子的結婚照，緩緩動了起來"></video></div>
+      <div class="text"><div class="yr">1968</div><h3>攜手成家</h3><p>他與摯愛的妻子許下一生的約定。從此兩人同甘共苦，一起把小小的家，經營成孩子們最想回去的地方。</p></div>
+    </article>
+    <article class="stop">
+      <div class="media"><video src="img/couple.mp4" poster="img/couple.jpg" autoplay muted loop playsinline preload="metadata" aria-label="王大明先生與妻子在客廳翻看相簿"></video></div>
+      <div class="text"><div class="yr">1990s</div><h3>守護家人</h3><p>工作再忙，晚飯一定回家吃。週末最喜歡和太太坐在沙發上翻舊相簿，一張一張說著當年的故事。</p></div>
+    </article>
+    <article class="stop">
+      <div class="media"><video src="img/grandchild.mp4" poster="img/grandchild.jpg" autoplay muted loop playsinline preload="metadata" aria-label="王大明先生與孫女在公園長椅上看相簿"></video></div>
+      <div class="text"><div class="yr">2010s</div><h3>含飴弄孫</h3><p>退休後，公園的長椅成了他和孫女的祕密基地。他把一生的回憶慢慢說給下一代聽，也教會我們什麼是耐心與溫柔。</p></div>
+    </article>
+    <article class="stop">
+      <div class="media"><video src="img/sunset.mp4" poster="img/sunset.jpg" autoplay muted loop playsinline preload="metadata" aria-label="王大明先生在湖畔看夕陽"></video></div>
+      <div class="text"><div class="yr">2025</div><h3>夕陽無限好</h3><p>他喜歡在湖邊看夕陽，說每一天都值得好好道別。如今他安然遠行，留給我們的，是滿滿的愛與思念。</p></div>
+    </article>
+  </div>
+</div></section>
+
+<section class="sec album" id="album"><div class="wrap">
+  <div class="sec-head"><span class="eyebrow">MEMORIES</span><h2>人生相簿</h2></div>
+  <div class="grid" id="grid">
+    <button class="g1" data-cap="與孫女的午後時光"><img src="img/grandchild.jpg" alt="與孫女的午後時光" loading="lazy"></button>
+    <button class="g2" data-cap="追思會場"><img src="img/altar.jpg" alt="追思會場" loading="lazy"></button>
+    <button class="g3" data-cap="結婚紀念"><img src="img/wedding.jpg" alt="結婚紀念" loading="lazy"></button>
+    <button class="g4" data-cap="與太太一起翻相簿"><img src="img/couple.jpg" alt="與太太一起翻相簿" loading="lazy"></button>
+    <button class="g5" data-cap="湖畔的夕陽"><img src="img/sunset.jpg" alt="湖畔的夕陽" loading="lazy"></button>
+  </div>
+</div></section>
+<div class="lightbox" id="lb" hidden role="dialog" aria-modal="true" aria-label="照片檢視">
+  <button type="button" id="lbClose">關閉</button>
+  <figure><img id="lbImg" alt=""><figcaption id="lbCap"></figcaption></figure>
 </div>
-<audio id="vAudio" preload="auto"></audio>
+
+<section class="sec candle-sec" id="candle"><div class="wrap">
+  <div class="sec-head"><span class="eyebrow">LIGHT A CANDLE</span><h2>為他點一盞燈</h2></div>
+  <div class="flame-box">
+    <div class="candle" id="candleEl"><div class="flame"></div><div class="wick"></div><div class="body"></div></div>
+    <button class="btn" type="button" id="lightBtn">點燈追思</button>
+    <div class="count" id="candleCount" aria-live="polite">願光亮陪他走過遠方的路</div>
+  </div>
+</div></section>
+
+<section class="sec" id="guestbook"><div class="wrap">
+  <div class="sec-head"><span class="eyebrow">GUESTBOOK</span><h2>親友留言</h2></div>
+  <div class="gb">
+    <form id="gbForm">
+      <label for="gbName">您的稱呼<input id="gbName" maxlength="20" placeholder="例如：孫女 小雲" required></label>
+      <label for="gbText">想對他說的話<textarea id="gbText" maxlength="500" placeholder="寫下一段回憶，或一句想念…" required></textarea></label>
+      <button class="btn" type="submit" id="gbSend">送出留言</button>
+      <p class="hint" id="gbHint">每位親友可留下一則留言，之後可再修改。</p>
+    </form>
+    <div class="msgs" id="msgs"><div class="empty">正在載入留言…</div></div>
+  </div>
+</div></section>
+
+<footer>珍貴的回憶 ・ 永恆的陪伴</footer>
+
 <script>
-// Prepared answers in his voice. Idle loop at rest, talk loop while a clip plays, bow after some answers.
+// Petals
+(() => {
+  const c = document.getElementById('petals');
+  if (matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  const x = c.getContext('2d');
+  let W, H, ps = [];
+  const size = () => { W = c.width = c.offsetWidth * devicePixelRatio; H = c.height = c.offsetHeight * devicePixelRatio; };
+  size(); addEventListener('resize', size);
+  for (let i = 0; i < 18; i++) ps.push({ x: Math.random(), y: Math.random(), r: 5 + Math.random() * 7, s: .0006 + Math.random() * .0012, a: Math.random() * 6.28, w: .5 + Math.random() });
+  (function tick() {
+    x.clearRect(0, 0, W, H);
+    for (const p of ps) {
+      p.y += p.s; p.a += .01 * p.w; p.x += Math.sin(p.a) * .0006;
+      if (p.y > 1.05) { p.y = -.05; p.x = Math.random(); }
+      x.save(); x.translate(p.x * W, p.y * H); x.rotate(p.a); x.scale(1, .5);
+      x.fillStyle = 'rgba(255,250,240,.75)';
+      x.beginPath(); x.ellipse(0, 0, p.r * devicePixelRatio, p.r * .55 * devicePixelRatio, 0, 0, 6.28); x.fill(); x.restore();
+    }
+    requestAnimationFrame(tick);
+  })();
+})();
+
+// Digital human chat: prepared answers in his voice. Talk loop while a clip plays,
+// optional bow at the end, then rest.
 (() => {
   const $ = id => document.getElementById(id);
-  const stage = $('stage'), idle = $('vIdle'), talk = $('vTalk'), bow = $('vBow'), audio = $('vAudio'), cap = $('cap');
-  const side = $('side'), stopBtn = $('vStop'), fsBtn = $('fsBtn');
+  const dh = $('dh'), stage = $('stage'), idle = $('vIdle'), talk = $('vTalk'), bow = $('vBow'), audio = $('vAudio'), cap = $('cap');
+  const stopBtn = $('vStop'), side = dh.querySelector('.voice-side'), ask = side.querySelector('.ask'), fsBtn = $('fsBtn');
   const chips = $('chips'), moreBtn = $('moreChips'), sayForm = $('sayForm'), sayInput = $('sayInput'), micBtn = $('micBtn'), you = $('you');
   let qa = [], caps = [], state = 'idle', withBow = false, fb = 0;
 
-  fetch('qa.json').then(r => r.json()).then(j => { qa = j; renderChips(); }).catch(() => { you.textContent = '回答載入失敗，請重新整理。'; });
+  fetch('avatar/qa.json').then(r => r.json()).then(j => { qa = j; renderChips(); }).catch(() => { ask.hidden = true; });
 
   const rest = () => {
     state = 'idle'; stage.classList.remove('bowing', 'speaking'); idle.play().catch(() => {}); side.classList.remove('busy');
@@ -151,7 +403,7 @@ h1 { margin: -6px 0 0; font-size: clamp(1.5rem, 3.4vw, 2rem); font-weight: 600; 
   function answer(text, it) {
     if (!it || state !== 'idle') return;
     you.textContent = '你說：' + text;
-    audio.src = 'qa/' + it.id + '.mp3';
+    audio.src = 'avatar/qa/' + it.id + '.mp3';
     caps = it.caps || []; withBow = !!it.bow;
     state = 'talking'; side.classList.add('busy'); stopBtn.hidden = false;
     talk.currentTime = 0; stage.classList.add('speaking');
@@ -161,11 +413,11 @@ h1 { margin: -6px 0 0; font-size: clamp(1.5rem, 3.4vw, 2rem); font-weight: 600; 
     const list = qa.filter(x => x.chip);
     list.forEach((it, i) => {
       const b = document.createElement('button');
-      b.type = 'button'; b.textContent = it.chip; b.hidden = i >= 10;
+      b.type = 'button'; b.textContent = it.chip; b.hidden = i >= 8;
       b.addEventListener('click', () => answer(it.chip, it));
       chips.append(b);
     });
-    if (list.length > 10) moreBtn.hidden = false;
+    if (list.length > 8) moreBtn.hidden = false;
   }
   moreBtn.addEventListener('click', () => { chips.querySelectorAll('button').forEach(b => { b.hidden = false; }); moreBtn.hidden = true; });
   sayForm.addEventListener('submit', e => {
@@ -176,35 +428,140 @@ h1 { margin: -6px 0 0; font-size: clamp(1.5rem, 3.4vw, 2rem); font-weight: 600; 
     answer(text, match(text));
   });
 
-  // Speech input; if the browser has none or refuses, fall back to the keyboard's own mic
+  // Speech input where the browser allows it; otherwise the phone keyboard's mic still works
+  // (an embedded page can't open the mic, so there the button hands off to the keyboard's own mic)
   const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
-  let rec = null, keyboardMic = !SR;
-  const useKeyboardMic = msg => { sayInput.focus(); you.textContent = msg || '請按手機鍵盤上的麥克風 🎤 說話，說完按「說」。'; };
+  let rec = null, keyboardMic = !SR || window.top !== window;
+  // Inside claude.ai the mic is off-limits, so first try the stand-alone voice page
+  const voicePage = 'https://gavin1424.github.io/memorial-talk/talk.html';
+  const useKeyboardMic = () => {
+    const w = window.top !== window ? window.open(voicePage, '_blank') : null;
+    if (w) { w.opener = null; return; }
+    sayInput.focus();
+    you.textContent = '請按手機鍵盤上的麥克風 🎤 說話，說完按「說」，或開啟下方的語音對話頁。';
+  };
+  micBtn.hidden = false;
   micBtn.addEventListener('click', () => {
     if (keyboardMic) { useKeyboardMic(); return; }
     if (rec) { rec.stop(); return; }
     rec = new SR(); rec.lang = 'zh-TW'; rec.interimResults = true;
-    sayInput.value = ''; you.textContent = '請說話…';
+    sayInput.value = '';
     rec.onresult = e => { sayInput.value = Array.from(e.results, r => r[0].transcript).join(''); };
     rec.onerror = e => {
-      if (e.error === 'not-allowed' || e.error === 'service-not-allowed' || e.error === 'audio-capture') { keyboardMic = true; useKeyboardMic('麥克風沒有開啟權限。可以在瀏覽器設定允許麥克風，或按鍵盤上的 🎤 說話。'); }
-      else if (e.error === 'no-speech') you.textContent = '沒有聽到聲音，再按一次麥克風試試。';
+      if (e.error === 'not-allowed' || e.error === 'service-not-allowed' || e.error === 'audio-capture') { keyboardMic = true; useKeyboardMic(); }
     };
     rec.onend = () => { micBtn.classList.remove('rec'); rec = null; if (sayInput.value.trim()) sayForm.requestSubmit(); };
     micBtn.classList.add('rec');
     try { rec.start(); } catch { rec = null; micBtn.classList.remove('rec'); keyboardMic = true; useKeyboardMic(); }
   });
 
-  // Full screen
+  // Full screen: browser fullscreen when allowed, fixed overlay as the fallback
   const label = fsBtn.querySelector('span');
-  new ResizeObserver(() => document.body.style.setProperty('--panel', side.offsetHeight + 'px')).observe(side);
-  fsBtn.addEventListener('click', () => {
-    if (document.fullscreenElement) document.exitFullscreen().catch(() => {});
-    else if (document.documentElement.requestFullscreen) document.documentElement.requestFullscreen().catch(() => {});
+  new ResizeObserver(() => dh.style.setProperty('--panel', side.offsetHeight + 'px')).observe(side);
+  const setFull = on => {
+    dh.classList.toggle('full', on); document.body.style.overflow = on ? 'hidden' : '';
+    label.textContent = on ? '離開全螢幕' : '全螢幕'; fsBtn.setAttribute('aria-label', label.textContent);
+  };
+  fsBtn.addEventListener('click', async () => {
+    if (dh.classList.contains('full')) {
+      if (document.fullscreenElement) await document.exitFullscreen().catch(() => {});
+      setFull(false); return;
+    }
+    setFull(true);
+    if (dh.requestFullscreen) await dh.requestFullscreen().catch(() => {});
   });
-  document.addEventListener('fullscreenchange', () => { label.textContent = document.fullscreenElement ? '離開全螢幕' : '全螢幕'; });
-  if (!document.documentElement.requestFullscreen) fsBtn.hidden = true;
+  document.addEventListener('fullscreenchange', () => { if (!document.fullscreenElement && dh.classList.contains('full')) setFull(false); });
+  addEventListener('keydown', e => { if (e.key === 'Escape' && dh.classList.contains('full') && !document.fullscreenElement) setFull(false); });
 })();
+
+// Lightbox
+const lb = document.getElementById('lb'), lbImg = document.getElementById('lbImg'), lbCap = document.getElementById('lbCap');
+document.getElementById('grid').addEventListener('click', e => {
+  const b = e.target.closest('button'); if (!b) return;
+  lbImg.src = b.querySelector('img').src; lbImg.alt = b.dataset.cap; lbCap.textContent = b.dataset.cap;
+  lb.hidden = false; document.getElementById('lbClose').focus();
+});
+const closeLb = () => { lb.hidden = true; };
+document.getElementById('lbClose').onclick = closeLb;
+lb.addEventListener('click', e => { if (e.target === lb) closeLb(); });
+addEventListener('keydown', e => { if (e.key === 'Escape') closeLb(); });
+
+// Shared candle + guestbook
+const candleEl = document.getElementById('candleEl'), lightBtn = document.getElementById('lightBtn'), countEl = document.getElementById('candleCount');
+const msgsEl = document.getElementById('msgs'), form = document.getElementById('gbForm'), hint = document.getElementById('gbHint'), sendBtn = document.getElementById('gbSend');
+let db = null, me = null;
+
+lightBtn.addEventListener('click', async () => {
+  candleEl.classList.add('lit');
+  if (!db || !me) { lightBtn.disabled = true; lightBtn.textContent = '燈已點亮'; return; }
+  try { await db.collection('candles').doc(me).set({ at: Date.now() }); }
+  catch { countEl.textContent = '燈已點亮，但這次沒能記錄下來'; }
+});
+
+function renderMsgs(docs) {
+  msgsEl.replaceChildren();
+  if (!docs.length) {
+    const d = document.createElement('div'); d.className = 'empty';
+    d.textContent = '還沒有留言。寫下第一段回憶，讓更多人一起想念他。';
+    msgsEl.append(d); return;
+  }
+  for (const m of docs) {
+    const el = document.createElement('article'); el.className = 'msg';
+    const p = document.createElement('p'); p.textContent = String(m.text || '');
+    const meta = document.createElement('div'); meta.className = 'meta';
+    const n = document.createElement('span'); n.textContent = '— ' + String(m.name || '親友');
+    const t = document.createElement('span'); t.textContent = m.at ? new Date(m.at).toLocaleDateString('zh-TW') : '';
+    meta.append(n, t); el.append(p, meta); msgsEl.append(el);
+  }
+}
+
+function offline(text) {
+  msgsEl.innerHTML = '<div class="empty"></div>'; msgsEl.firstChild.textContent = text;
+  sendBtn.disabled = true; hint.textContent = '登入 claude.ai 後即可留言與點燈紀錄。';
+}
+
+// Outside claude.ai (the GitHub Pages copy) there is no shared store: point to the online guestbook
+const onlineSite = 'https://claude.ai/artifact/GMh3W53xB1EdNJJHkEuk2a';
+if (typeof claude === 'undefined') {
+  msgsEl.innerHTML = '<div class="empty">親友留言與點燈人數保存在線上追思網。<br><a href="' + onlineSite + '#guestbook" target="_blank" rel="noopener">前往留言　→</a></div>';
+  form.hidden = true;
+}
+else (async () => {
+  const timer = setTimeout(() => offline('留言暫時無法載入，請稍後重新整理。'), 10000);
+  try {
+    const [d, u] = await Promise.all([claude.use('db'), claude.use('user')]);
+    if (!d) { clearTimeout(timer); offline('登入 claude.ai 後即可查看親友留言。'); return; }
+    db = d; me = u ? await u.id() : null;
+    db.collection('guestbook').orderBy('at', 'desc').limit(200).onSnapshot(snap => {
+      clearTimeout(timer);
+      renderMsgs(snap.docs.map(x => x.data() || {}));
+    }, () => { clearTimeout(timer); offline('留言暫時無法載入，請稍後重新整理。'); });
+    db.collection('candles').onSnapshot(snap => {
+      const n = snap.docs.length;
+      const mine = me && snap.docs.some(x => x.id === me);
+      if (mine) { candleEl.classList.add('lit'); lightBtn.disabled = true; lightBtn.textContent = '您已點亮'; }
+      countEl.innerHTML = n ? '已有<b></b>位親友為他點燈' : '願光亮陪他走過遠方的路';
+      if (n) countEl.querySelector('b').textContent = n;
+    }, () => {});
+    if (me) {
+      const mineDoc = await db.collection('guestbook').doc(me).get().catch(() => null);
+      const v = mineDoc && mineDoc.data();
+      if (v) { gbName.value = v.name || ''; gbText.value = v.text || ''; sendBtn.textContent = '更新留言'; }
+    }
+  } catch { clearTimeout(timer); offline('登入 claude.ai 後即可查看親友留言。'); }
+})();
+
+form.addEventListener('submit', async e => {
+  e.preventDefault();
+  if (!db || !me) return;
+  const name = gbName.value.trim(), text = gbText.value.trim();
+  if (!name || !text) return;
+  sendBtn.disabled = true;
+  try {
+    await db.collection('guestbook').doc(me).set({ name, text, at: Date.now() });
+    hint.textContent = '留言已送出，謝謝您。'; sendBtn.textContent = '更新留言';
+  } catch (err) {
+    hint.textContent = err && err.code === 'permission_denied' ? '您目前只有檢視權限，請向網站擁有者索取留言權限。' : '送出失敗，請稍後再試。';
+  } finally { sendBtn.disabled = false; }
+});
 </script>
-</body>
-</html>

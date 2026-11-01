@@ -1,0 +1,161 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>他的告白</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@400;600;900&family=LXGW+WenKai+TC&display=swap">
+<style>
+/* Layout: one dark room — the speaking portrait in the middle, his words under it, quiet controls below */
+:root {
+  --bg: #1f160f;
+  --bg-2: #2b1f16;
+  --ink: #f3e6d0;
+  --ink-soft: #c9b799;
+  --muted: #a8957a;
+  --gold: #a9834a;
+  --gold-soft: #d9c08e;
+  --serif: "Noto Serif TC", "Songti TC", "PMingLiU", serif;
+  --hand: "LXGW WenKai TC", "Noto Serif TC", "Kaiti TC", serif;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+[hidden] { display: none !important; }
+html, body { margin: 0; }
+body { min-height: 100dvh; background: radial-gradient(ellipse at 50% 30%, var(--bg-2), var(--bg) 70%); background-color: var(--bg); color: var(--ink); font-family: var(--serif); font-size: 16px; line-height: 1.8; display: flex; flex-direction: column; }
+a { color: inherit; }
+header { display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: max(14px, env(safe-area-inset-top, 0px)) max(16px, env(safe-area-inset-right, 0px)) 8px max(16px, env(safe-area-inset-left, 0px)); }
+.back { text-decoration: none; color: var(--gold-soft); letter-spacing: .1em; font-size: .92rem; }
+.back:hover, .back:focus-visible { color: #fff3dc; outline: none; }
+.title { letter-spacing: .3em; font-size: .8rem; color: var(--gold); }
+main { flex: 1; display: grid; justify-items: center; align-content: center; gap: 18px; padding: 8px 16px max(24px, env(safe-area-inset-bottom, 0px)); }
+h1 { margin: 0; font-size: clamp(1.5rem, 4vw, 2rem); font-weight: 600; letter-spacing: .16em; text-align: center; }
+.sub { margin: -10px 0 0; color: var(--ink-soft); text-align: center; font-size: .95rem; }
+.stage { position: relative; height: min(68dvh, 720px); aspect-ratio: 9/16; max-width: calc(100vw - 32px); border-radius: 10px; overflow: hidden; background: #1e150e url(avatar/idle.jpg) center/cover; box-shadow: 0 24px 60px rgba(0,0,0,.5); }
+.stage video { position: absolute; inset: 0; z-index: 0; width: 100%; height: 100%; object-fit: cover; transition: opacity .35s; }
+.stage .talk, .stage .bow { opacity: 0; }
+.stage.speaking .talk, .stage.bowing .bow { opacity: 1; }
+.stage.speaking .idle, .stage.bowing .idle { opacity: 0; }
+.cap { position: absolute; z-index: 3; left: 0; right: 0; bottom: 0; padding: 56px 18px 22px; background: linear-gradient(0deg, rgba(20,13,8,.85), transparent); font-family: var(--hand); font-size: clamp(1.1rem, 2.3vh, 1.5rem); line-height: 1.6; text-align: center; color: #fff6e6; text-shadow: 0 1px 6px rgba(0,0,0,.6); min-height: 5.4em; display: flex; align-items: flex-end; justify-content: center; opacity: 0; transition: opacity .3s; }
+.cap.on { opacity: 1; }
+.ctrl { display: flex; flex-wrap: wrap; justify-content: center; align-items: center; gap: 12px; }
+.btn { font: inherit; letter-spacing: .15em; padding: 10px 28px; border-radius: 99px; border: 1px solid var(--gold); background: var(--gold); color: #fffaf2; cursor: pointer; }
+.btn:hover { filter: brightness(1.08); }
+.btn:focus-visible { outline: 2px solid var(--gold-soft); outline-offset: 3px; }
+.btn.ghost { background: transparent; color: var(--gold-soft); border-color: var(--gold-soft); }
+.btn svg { width: 16px; height: 16px; fill: none; stroke: currentColor; stroke-width: 1.8; vertical-align: -2px; margin-right: 6px; }
+.bar { width: min(420px, 80vw); height: 4px; background: rgba(217,192,142,.22); border-radius: 4px; overflow: hidden; cursor: pointer; }
+.bar i { display: block; height: 100%; width: 0; background: var(--gold-soft); }
+.time { font-size: .82rem; color: var(--muted); font-variant-numeric: tabular-nums; letter-spacing: .08em; }
+.note { margin: 0; font-size: .8rem; color: var(--muted); text-align: center; }
+/* Full screen: the stage fills the screen, controls float at the bottom */
+body.full header, body.full h1, body.full .sub, body.full .note { display: none; }
+body.full main { padding: 0; }
+body.full .stage { position: fixed; top: 0; bottom: 0; left: 50%; transform: translateX(-50%); height: 100dvh; max-width: 100vw; border-radius: 0; box-shadow: none; }
+body.full .cap { bottom: 96px; background: none; z-index: 3; }
+body.full .time { display: none; }
+body.full .bar, body.full .ctrl { position: fixed; left: 50%; transform: translateX(-50%); z-index: 3; }
+body.full .bar { bottom: calc(max(16px, env(safe-area-inset-bottom, 0px)) + 62px); }
+body.full .ctrl { bottom: max(16px, env(safe-area-inset-bottom, 0px)); flex-wrap: nowrap; width: max-content; max-width: calc(100vw - 24px); gap: 8px; }
+body.full .ctrl .btn { white-space: nowrap; }
+body.full .stage::after { content: ""; position: absolute; left: 0; right: 0; bottom: 0; height: 220px; z-index: 2; background: linear-gradient(0deg, rgba(20,13,8,.9), transparent); pointer-events: none; }
+/* Phones and portrait screens: he fills the whole screen */
+@media (max-width: 720px), (max-aspect-ratio: 4/5) {
+  body.full .stage { left: 0; right: 0; transform: none; width: 100%; aspect-ratio: auto; }
+  body.full .btn { padding: 10px 18px; }
+}
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+</style>
+</head>
+<body>
+<header>
+  <a class="back" href="index.html">← 回追思網</a>
+  <span class="title">A LETTER FROM HIM</span>
+</header>
+<main>
+  <h1>他想對你們說</h1>
+  <p class="sub">聽他把一直沒說出口的話，親口說給家人與親友聽。</p>
+  <div class="stage" id="stage">
+    <video class="idle" id="vIdle" src="avatar/idle.mp4" poster="avatar/idle.jpg" muted loop autoplay playsinline preload="auto" aria-hidden="true"></video>
+      <video class="talk" id="vTalk" src="avatar/talk.mp4" poster="avatar/idle.jpg" muted loop playsinline preload="auto" aria-label="王大明先生的數字人影像"></video>
+    <video class="bow" id="vBow" src="avatar/bow.mp4" muted playsinline preload="auto" aria-hidden="true"></video>
+    <div class="cap" id="cap" aria-live="polite"></div>
+  </div>
+  <div class="bar" id="bar" role="progressbar" aria-label="播放進度" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><i id="barFill"></i></div>
+  <div class="time" id="time">00:00 / 01:49</div>
+  <div class="ctrl">
+    <button class="btn" type="button" id="playBtn">聽他說</button>
+    <button class="btn ghost" type="button" id="stopBtn" hidden>停止</button>
+    <button class="btn ghost" type="button" id="fsBtn"><svg viewBox="0 0 24 24"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></svg><span>全螢幕</span></button>
+  </div>
+  <p class="note">此為依照片與家人回憶製作的 AI 數字人，聲音為合成語音。</p>
+</main>
+<audio id="audio" src="avatar/confession.mp3" preload="auto"></audio>
+<script>
+// Talk loop while the letter plays, bow at the end, then rest
+(() => {
+  const $ = id => document.getElementById(id);
+  const stage = $('stage'), idle = $('vIdle'), talk = $('vTalk'), bow = $('vBow'), audio = $('audio'), cap = $('cap');
+  const bar = $('bar'), fill = $('barFill'), time = $('time'), playBtn = $('playBtn'), stopBtn = $('stopBtn'), fsBtn = $('fsBtn');
+  let caps = [], state = 'idle';
+  fetch('avatar/captions.json').then(r => r.json()).then(j => { caps = j; }).catch(() => {});
+
+  const mmss = s => { s = Math.max(0, Math.floor(s || 0)); return String(Math.floor(s / 60)).padStart(2, '0') + ':' + String(s % 60).padStart(2, '0'); };
+  const showTime = () => {
+    const d = audio.duration || 109, t = audio.currentTime;
+    fill.style.width = (t / d * 100) + '%'; bar.setAttribute('aria-valuenow', Math.round(t / d * 100));
+    time.textContent = mmss(t) + ' / ' + mmss(d);
+  };
+  const rest = done => {
+    state = 'idle'; stage.classList.remove('bowing', 'speaking'); idle.play().catch(() => {});
+    talk.pause(); talk.currentTime = 0; bow.pause(); bow.currentTime = 0;
+    cap.classList.remove('on'); playBtn.textContent = done ? '再聽一次' : '聽他說'; stopBtn.hidden = true;
+  };
+  const play = () => { state = 'talking'; stage.classList.remove('bowing'); stage.classList.add('speaking'); audio.play().catch(() => rest()); talk.play().catch(() => {}); playBtn.textContent = '暫停'; stopBtn.hidden = false; };
+
+  playBtn.addEventListener('click', () => {
+    if (state === 'bowing') return;
+    if (state === 'talking') { audio.pause(); talk.pause(); state = 'paused'; playBtn.textContent = '繼續'; return; }
+    if (state === 'idle') audio.currentTime = 0;
+    play();
+  });
+  stopBtn.addEventListener('click', () => { audio.pause(); audio.currentTime = 0; showTime(); rest(); });
+  bar.addEventListener('click', e => {
+    if (!audio.duration || state === 'bowing') return;
+    const r = bar.getBoundingClientRect();
+    audio.currentTime = (e.clientX - r.left) / r.width * audio.duration; showTime();
+    if (state === 'idle') play();
+  });
+  audio.addEventListener('loadedmetadata', showTime);
+  audio.addEventListener('timeupdate', () => {
+    showTime();
+    if (state !== 'talking') return;
+    const t = audio.currentTime;
+    const c = caps.find(x => t >= x.s && t < x.e + .25);
+    if (c) { if (cap.textContent !== c.t) cap.textContent = c.t; cap.classList.add('on'); } else cap.classList.remove('on');
+  });
+  audio.addEventListener('ended', () => {
+    state = 'bowing'; cap.classList.remove('on');
+    bow.currentTime = 0; stage.classList.remove('speaking'); stage.classList.add('bowing');
+    bow.play().catch(() => rest(true)); setTimeout(() => talk.pause(), 400);
+  });
+  bow.addEventListener('ended', () => rest(true));
+
+  // Full screen: browser fullscreen when allowed, page layout switch either way
+  const label = fsBtn.querySelector('span');
+  const setFull = on => { document.body.classList.toggle('full', on); label.textContent = on ? '離開全螢幕' : '全螢幕'; };
+  fsBtn.addEventListener('click', async () => {
+    if (document.body.classList.contains('full')) {
+      if (document.fullscreenElement) await document.exitFullscreen().catch(() => {});
+      setFull(false); return;
+    }
+    setFull(true);
+    if (document.documentElement.requestFullscreen) await document.documentElement.requestFullscreen().catch(() => {});
+  });
+  document.addEventListener('fullscreenchange', () => { if (!document.fullscreenElement && document.body.classList.contains('full')) setFull(false); });
+  addEventListener('keydown', e => { if (e.key === 'Escape' && document.body.classList.contains('full') && !document.fullscreenElement) setFull(false); });
+})();
+</script>
+</body>
+</html>
