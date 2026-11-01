@@ -10,7 +10,15 @@
     "volume": 1.0,
     "chipsShown": 10,
     "greetingId": "hello",
-    "bowAfter": true
+    "bowAfter": true,
+    "presence": {
+      "enabled": true,
+      "greetId": "hello",
+      "byeId": "bye",
+      "near": 0.08,
+      "leaveSec": 8,
+      "cooldownSec": 20
+    }
   },
   "defaultVoice": "m0",
   "voices": [

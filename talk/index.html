@@ -79,6 +79,10 @@ h1 { margin: -6px 0 0; font-size: clamp(1.5rem, 3.4vw, 2rem); font-weight: 600; 
 .veil i { width: 72px; height: 72px; border-radius: 50%; border: 1px solid var(--gold-soft); display: grid; place-items: center; animation: pulse 1.8s infinite; }
 .veil svg { width: 30px; height: 30px; fill: none; stroke: var(--gold-soft); stroke-width: 1.6; }
 .vbtn { right: auto; left: 12px; }
+.pres { right: auto; left: 12px; top: calc(max(12px, env(safe-area-inset-top, 0px)) + 44px); font-size: .78rem; letter-spacing: .06em; }
+.pres i { width: 8px; height: 8px; border-radius: 50%; background: var(--muted); }
+.pres.seen i { background: #7fbf7a; box-shadow: 0 0 0 4px rgba(127,191,122,.25); }
+.pres.off { opacity: .6; }
 /* Voice picker: a quiet sheet listing the voices the family opened up */
 .vpanel { position: fixed; inset: 0; z-index: 15; display: grid; place-items: center; padding: 16px; background: rgba(20,13,8,.6); }
 .vpanel > div { width: min(560px, 100%); max-height: calc(100dvh - 32px); overflow-y: auto; background: var(--bg-2); border: 1px solid rgba(217,192,142,.35); border-radius: 14px; padding: 18px 18px 14px; display: grid; gap: 10px; }
@@ -102,6 +106,7 @@ h1 { margin: -6px 0 0; font-size: clamp(1.5rem, 3.4vw, 2rem); font-weight: 600; 
     <video class="bow" id="vBow" src="../avatar/bow.mp4" muted playsinline preload="auto" aria-hidden="true"></video>
     <div class="cap" id="cap" aria-live="polite"></div>
     <button type="button" class="fs" id="fsBtn"><svg viewBox="0 0 24 24"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></svg><span>全螢幕</span></button>
+    <button type="button" class="fs pres" id="presBtn" hidden aria-pressed="true" title="鏡頭只在這台裝置上判斷有沒有人靠近，不錄影、不上傳"><i></i><span>等候親人</span></button>
     <button type="button" class="fs vbtn" id="voiceBtn" hidden><svg viewBox="0 0 24 24"><path d="M4 10v4M8 7v10M12 4v16M16 8v8M20 11v2"/></svg><span>聲音</span></button>
   </div>
   <div class="side" id="side">
@@ -138,13 +143,14 @@ h1 { margin: -6px 0 0; font-size: clamp(1.5rem, 3.4vw, 2rem); font-weight: 600; 
 
   // Settings, voices and answers come from config.json, written by the admin tool on publish.
   // Without it (older deploy) the page keeps working with the original single voice.
-  let site = { handsFree: true, showCaptions: true, chipsShown: 10, greetingId: 'hello', speed: 1, volume: 1, bowAfter: true };
+  let site = { handsFree: true, showCaptions: true, chipsShown: 10, greetingId: 'hello', speed: 1, volume: 1, bowAfter: true,
+    presence: { enabled: false, greetId: 'hello', byeId: 'bye', near: 0.08, leaveSec: 8, cooldownSec: 20 } };
   let voices = [], voice = null, capsByVoice = {};
   const VKEY = 'memorial-talk-voice';
   const clipUrl = id => voice ? `../avatar/voices/${voice}/qa/${id}.mp3` : `../avatar/qa/${id}.mp3`;
   const loadCaps = v => capsByVoice[v] ? Promise.resolve(capsByVoice[v]) : fetch(`../avatar/voices/${v}/caps.json`).then(r => r.json()).then(j => (capsByVoice[v] = j));
   const ready = fetch('../config.json', { cache: 'no-cache' }).then(r => { if (!r.ok) throw 0; return r.json(); }).then(async c => {
-    Object.assign(site, c.site); voices = c.voices; qa = c.qa;
+    Object.assign(site, c.site, { presence: { ...site.presence, ...(c.site && c.site.presence) } }); voices = c.voices; qa = c.qa;
     let pick = new URLSearchParams(location.search).get('v');
     if (!pick && site.allowVoicePick) try { pick = localStorage.getItem(VKEY); } catch {}
     voice = voices.some(x => x.id === pick) ? pick : c.defaultVoice;
@@ -156,13 +162,23 @@ h1 { margin: -6px 0 0; font-size: clamp(1.5rem, 3.4vw, 2rem); font-weight: 600; 
   }).catch(() => fetch('../avatar/qa.json').then(r => r.json()).then(j => { qa = j; voice = null; }))
     .then(renderChips).catch(() => { you.textContent = '回答載入失敗，請重新整理。'; });
 
+  let afterBow = null, byeQueued = false;
   const rest = () => {
+    if (afterBow) { const f = afterBow; afterBow = null; state = 'idle'; stage.classList.remove('bowing'); bow.pause(); f(); return; }
     state = 'idle'; stage.classList.remove('bowing', 'speaking'); idle.play().catch(() => {}); side.classList.remove('busy');
     talk.pause(); talk.currentTime = 0; bow.pause(); bow.currentTime = 0;
     cap.classList.remove('on'); stopBtn.hidden = true;
+    if (byeQueued) { byeQueued = false; setTimeout(sayBye, 300); return; }
     if (handsFree) setTimeout(listen, 700);
   };
-  stopBtn.addEventListener('click', () => { audio.pause(); rest(); });
+  // Bow with folded hands (拱手) on its own, then go on with `then`
+  const bowNow = then => {
+    if (rec) rec.abort();
+    afterBow = then || null; state = 'bowing'; side.classList.add('busy'); cap.classList.remove('on');
+    bow.currentTime = 0; stage.classList.remove('speaking'); stage.classList.add('bowing');
+    bow.play().catch(rest);
+  };
+  stopBtn.addEventListener('click', () => { audio.pause(); afterBow = null; byeQueued = false; rest(); });
   audio.addEventListener('timeupdate', () => {
     if (state !== 'talking') return;
     const t = audio.currentTime;
@@ -230,7 +246,7 @@ h1 { margin: -6px 0 0; font-size: clamp(1.5rem, 3.4vw, 2rem); font-weight: 600; 
   let rec = null, handsFree = false, keyboardMic = !SR;
   const useKeyboardMic = msg => { handsFree = false; micBtn.classList.remove('on', 'rec'); you.textContent = msg || '請打字，或按手機鍵盤上的麥克風 🎤 說話，說完按「說」。'; };
   function listen() {
-    if (!handsFree || rec || state !== 'idle' || keyboardMic || !$('vPanel').hidden) return;
+    if (!handsFree || rec || state !== 'idle' || keyboardMic || !$('vPanel').hidden || (watching && !present)) return;
     rec = new SR(); rec.lang = 'zh-TW'; rec.interimResults = true;
     let heard = '';
     rec.onresult = e => { heard = Array.from(e.results, r => r[0].transcript).join(''); you.textContent = '你說：' + heard; };
@@ -257,9 +273,82 @@ h1 { margin: -6px 0 0; font-size: clamp(1.5rem, 3.4vw, 2rem); font-weight: 600; 
   const veil = $('veil');
   const greet = () => {
     handsFree = !keyboardMic && site.handsFree !== false; micBtn.classList.toggle('on', handsFree);
+    if (site.presence.enabled) { startWatching(); return; }
     const hi = site.greetingId && qa.find(x => x.id === site.greetingId);
     if (hi) { answer('（開始）', hi); you.textContent = ''; } else if (handsFree) listen();
   };
+
+  // Presence: the device's own camera notices a face coming close (greet with folded hands)
+  // and its absence after a while (farewell with folded hands). Frames never leave the device.
+  const presBtn = $('presBtn'), presLabel = presBtn.querySelector('span');
+  let watching = false, present = false, nearSince = 0, lastSeen = 0, lastBye = 0, cam = null, detector = null, timer = 0;
+  const qaById = id => id && qa.find(x => x.id === id);
+  const showPres = () => {
+    presBtn.classList.toggle('seen', watching && present); presBtn.classList.toggle('off', !watching);
+    presBtn.setAttribute('aria-pressed', watching);
+    presLabel.textContent = !watching ? '靠近偵測已關' : present ? '看見你了' : '等候親人';
+  };
+  function arrive() {
+    present = true; showPres();
+    if (Date.now() - lastBye < site.presence.cooldownSec * 1000 && lastBye) { if (state === 'idle') listen(); return; }
+    if (state !== 'idle') return;
+    const hi = qaById(site.presence.greetId);
+    bowNow(() => { if (hi) { answer('（有人靠近）', { ...hi, bow: false }); you.textContent = ''; } else rest(); });
+  }
+  function sayBye() {
+    if (present || state !== 'idle') return;
+    if (lastBye && Date.now() - lastBye < site.presence.cooldownSec * 1000) { lastBye = Date.now(); return; }
+    lastBye = Date.now();
+    const bye = qaById(site.presence.byeId);
+    if (bye) { answer('（親人離開）', { ...bye, bow: true }); you.textContent = ''; } else bowNow();
+  }
+  function leave() {
+    present = false; showPres();
+    if (rec) rec.abort();
+    if (state === 'idle') sayBye(); else byeQueued = true;
+  }
+  function tick() {
+    if (!watching || !detector || cam.readyState < 2) return;
+    const now = performance.now();
+    let faces = [];
+    try { faces = detector.detectForVideo(cam, now).detections; } catch { return; }
+    const w = cam.videoWidth || 1;
+    const near = faces.some(f => f.boundingBox.width / w >= site.presence.near);
+    if (faces.length) lastSeen = now;
+    if (near) { nearSince = nearSince || now; if (!present && now - nearSince > 700) arrive(); }
+    else nearSince = 0;
+    if (present && now - lastSeen > site.presence.leaveSec * 1000) leave();
+  }
+  async function startWatching() {
+    presBtn.hidden = false; you.textContent = '正在開啟鏡頭…';
+    try {
+      cam = document.createElement('video'); cam.muted = true; cam.playsInline = true;
+      cam.srcObject = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'user', width: 640, height: 480 }, audio: false });
+      await cam.play();
+      const V = await import('https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.14/vision_bundle.mjs');
+      const files = await V.FilesetResolver.forVisionTasks('https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.14/wasm');
+      detector = await V.FaceDetector.createFromOptions(files, { runningMode: 'VIDEO', minDetectionConfidence: 0.6,
+        baseOptions: { modelAssetPath: 'https://storage.googleapis.com/mediapipe-models/face_detector/blaze_face_short_range/float16/1/blaze_face_short_range.tflite' } });
+      watching = true; showPres(); you.textContent = '';
+      timer = setInterval(tick, 200);
+    } catch (e) {
+      // No camera or detector: fall back to the plain greeting and listening
+      stopWatching(); presBtn.hidden = true; you.textContent = '';
+      const hi = qaById(site.greetingId);
+      if (hi) answer('（開始）', hi); else if (handsFree) listen();
+      you.textContent = '';
+    }
+  }
+  function stopWatching() {
+    watching = false; present = false; clearInterval(timer);
+    if (cam && cam.srcObject) cam.srcObject.getTracks().forEach(t => t.stop());
+    showPres();
+  }
+  presBtn.addEventListener('click', () => {
+    if (watching) { stopWatching(); if (handsFree && state === 'idle') listen(); }
+    else { if (rec) rec.abort(); startWatching(); }
+  });
+  if (new URLSearchParams(location.search).has('debug')) window.__presence = { arrive, leave, state: () => ({ watching, present, state }) };
 
   // Voice picker: visitors choose among the voices the family opened; the choice is remembered on this device
   const vPanel = $('vPanel'), vList = $('vList'), sample = $('vSample');
