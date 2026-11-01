@@ -16,8 +16,7 @@
       "greetId": "hello",
       "byeId": "bye",
       "near": 0.08,
-      "leaveSec": 8,
-      "cooldownSec": 20
+      "leaveSec": 8
     }
   },
   "defaultVoice": "m0",

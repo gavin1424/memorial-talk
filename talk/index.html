@@ -139,7 +139,7 @@ h1 { margin: -6px 0 0; font-size: clamp(1.5rem, 3.4vw, 2rem); font-weight: 600; 
   // Settings, voices and answers come from config.json, written by the admin tool on publish.
   // Without it (older deploy) the page keeps working with the original single voice.
   let site = { handsFree: true, showCaptions: true, chipsShown: 10, greetingId: 'hello', speed: 1, volume: 1, bowAfter: true,
-    presence: { enabled: false, greetId: 'hello', byeId: 'bye', near: 0.08, leaveSec: 8, cooldownSec: 20 } };
+    presence: { enabled: false, greetId: 'hello', byeId: 'bye', near: 0.08, leaveSec: 8 } };
   let voices = [], voice = null, capsByVoice = {};
   const VKEY = 'memorial-talk-voice';
   const clipUrl = id => voice ? `../avatar/voices/${voice}/qa/${id}.mp3` : `../avatar/qa/${id}.mp3`;
@@ -157,13 +157,14 @@ h1 { margin: -6px 0 0; font-size: clamp(1.5rem, 3.4vw, 2rem); font-weight: 600; 
   }).catch(() => fetch('../avatar/qa.json').then(r => r.json()).then(j => { qa = j; voice = null; }))
     .then(renderChips).catch(() => { you.textContent = '回答載入失敗，請重新整理。'; });
 
-  let afterBow = null, byeQueued = false;
+  let afterBow = null, byeQueued = false, greetQueued = false;
   const rest = () => {
     if (afterBow) { const f = afterBow; afterBow = null; state = 'idle'; stage.classList.remove('bowing'); bow.pause(); f(); return; }
     state = 'idle'; stage.classList.remove('bowing', 'speaking'); idle.play().catch(() => {}); side.classList.remove('busy');
     talk.pause(); talk.currentTime = 0; bow.pause(); bow.currentTime = 0;
     cap.classList.remove('on'); stopBtn.hidden = true;
     if (byeQueued) { byeQueued = false; setTimeout(sayBye, 300); return; }
+    if (greetQueued) { greetQueued = false; if (present) { setTimeout(greetArrival, 300); return; } }
     if (handsFree) setTimeout(listen, 700);
   };
   // Bow with folded hands (拱手) on its own, then go on with `then`
@@ -173,7 +174,7 @@ h1 { margin: -6px 0 0; font-size: clamp(1.5rem, 3.4vw, 2rem); font-weight: 600; 
     bow.currentTime = 0; stage.classList.remove('speaking'); stage.classList.add('bowing');
     bow.play().catch(rest);
   };
-  stopBtn.addEventListener('click', () => { audio.pause(); afterBow = null; byeQueued = false; rest(); });
+  stopBtn.addEventListener('click', () => { audio.pause(); afterBow = null; byeQueued = greetQueued = false; rest(); });
   audio.addEventListener('timeupdate', () => {
     if (state !== 'talking') return;
     const t = audio.currentTime;
@@ -262,29 +263,31 @@ h1 { margin: -6px 0 0; font-size: clamp(1.5rem, 3.4vw, 2rem); font-weight: 600; 
   // Presence: the device's own camera notices a face coming close (greet with folded hands)
   // and its absence after a while (farewell with folded hands). Frames never leave the device.
   const presBtn = $('presBtn'), presLabel = presBtn.querySelector('span');
-  let watching = false, present = false, nearSince = 0, lastSeen = 0, lastBye = 0, cam = null, detector = null, timer = 0;
+  let watching = false, present = false, nearSince = 0, lastSeen = 0, cam = null, detector = null, timer = 0;
   const qaById = id => id && qa.find(x => x.id === id);
   const showPres = () => {
     presBtn.classList.toggle('seen', watching && present); presBtn.classList.toggle('off', !watching);
     presBtn.setAttribute('aria-pressed', watching);
     presLabel.textContent = !watching ? '靠近偵測已關' : present ? '看見你了' : '等候親人';
   };
+  // Every new arrival gets the folded-hands bow and greeting, even right after the last goodbye;
+  // if he is still busy (say, bowing farewell to the one before), it waits until he is free.
   function arrive() {
     present = true; showPres();
-    if (Date.now() - lastBye < site.presence.cooldownSec * 1000 && lastBye) { if (state === 'idle') listen(); return; }
-    if (state !== 'idle') return;
+    if (state === 'idle') greetArrival(); else greetQueued = true;
+  }
+  function greetArrival() {
+    if (!present || state !== 'idle') return;
     const hi = qaById(site.presence.greetId);
     bowNow(() => { if (hi) { answer('（有人靠近）', { ...hi, bow: false }); you.textContent = ''; } else rest(); });
   }
   function sayBye() {
     if (present || state !== 'idle') return;
-    if (lastBye && Date.now() - lastBye < site.presence.cooldownSec * 1000) { lastBye = Date.now(); return; }
-    lastBye = Date.now();
     const bye = qaById(site.presence.byeId);
     if (bye) { answer('（親人離開）', { ...bye, bow: true }); you.textContent = ''; } else bowNow();
   }
   function leave() {
-    present = false; showPres();
+    present = false; greetQueued = false; showPres();
     if (rec) rec.abort();
     if (state === 'idle') sayBye(); else byeQueued = true;
   }
